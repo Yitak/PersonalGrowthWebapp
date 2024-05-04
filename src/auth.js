@@ -33,11 +33,18 @@ onAuthStateChanged(auth, (user) => {
 
         saveUserSettingsButton.addEventListener("click", () => { UPDATE_USER_SETTINGS(userUID, usernameField.value); });
 
+        createNewGoalButton.addEventListener("click", () => {
+            goalEditNameField.value = "";
+            goalTagField.value = "";
+            GET_GOAL_TAGS(userUID);
+            toggleGoalEditBox(true, "creation");
+        });
+
         saveGoalEditButton.addEventListener("click", () => {
             if (goalEditBox.classList.contains("creation-mode")) {
-                WRITE_GOAL_TO_DATABASE(userUID, goalEditNameField.value);
+                WRITE_GOAL_TO_DATABASE(userUID, goalEditNameField.value, goalTagField.value);
             } else {
-                UPDATE_GOAL_TO_DATABASE(userUID, goalEditNameField.value, selectedGoalID, "", goalEditProgressField.value, goalEditProgressTotalField.value);
+                UPDATE_GOAL_TO_DATABASE(userUID, goalEditNameField.value, selectedGoalID, "", goalEditProgressField.value, goalEditProgressTotalField.value, goalTagField.value);
             }
         });
 
@@ -310,6 +317,7 @@ const goalEditBoxTitle = document.querySelector('.goal-edit-box-title');
 const goalEditNameField = document.querySelector('.goal-edit-name-field');
 const goalEditProgressField = document.querySelector('.goal-edit-progress-field');
 const goalEditProgressTotalField = document.querySelector('.goal-edit-progress-total-field');
+const goalTagField = document.querySelector('.goal-tags-field');
 const resetGoalsButton = document.querySelector('.reset-goals-button');
 const createNewGoalButton = document.querySelector('.create-new-goal-button');
 const saveGoalEditButton = document.querySelector('.saveGoalEditButton');
@@ -382,7 +390,25 @@ const resetDailyGoalElements = function (DEBUG_MODE=false) {
     }
 };
 
-const createGoalInfoData = function (goalName, goalCompletion, goalProgress, goalProgressTotal) {
+const resetGoalTagElements = function (DEBUG_MODE=false) {
+    const minElementCount = DEBUG_MODE === true ? 2 : 1;
+    const goalTagsContainer = document.querySelector('.goal-tags-container');
+    while (goalTagsContainer.childElementCount > minElementCount) {
+        goalTagsContainer.removeChild(goalTagsContainer.lastElementChild);
+    }
+};
+
+const createGoalTags = function (goalTagName) {
+    const goalTagsContainer = document.querySelector('.goal-tags-container');
+    const goalTagTemplate = document.querySelector('.goal-tag-template');
+    const goalTagElement = goalTagTemplate.content.cloneNode(true);
+    const goalTag = goalTagElement.querySelector('.goal-tag');
+    goalTag.textContent = goalTagName;
+    goalTag.addEventListener("click", () => { goalTagField.value = goalTag.textContent; });
+    goalTagsContainer.appendChild(goalTagElement);
+};
+
+const createGoalInfoData = function (goalName, goalCompletion, goalProgress, goalProgressTotal, goalTag) {
     var goalInfoData = {};
     if (goalName != "") {
         Object.assign(goalInfoData, {
@@ -402,6 +428,11 @@ const createGoalInfoData = function (goalName, goalCompletion, goalProgress, goa
     if (goalProgressTotal != "") {
         Object.assign(goalInfoData, {
             "goal_progress_total": goalProgressTotal
+        });
+    }
+    if (goalTag != "") {
+        Object.assign(goalInfoData, {
+            "goal_tag": goalTag
         });
     }
     return goalInfoData;
@@ -490,7 +521,7 @@ const RESET_TODAY_GOALS = function (userUID) {
 
 
 // CREATION
-const CREATE_NEW_GOAL = function (userUID, goalName, completion="0", goalDate="", goalProgress, goalProgressTotal) {
+const CREATE_NEW_GOAL = function (userUID, goalName, completion="0", goalDate="", goalProgress, goalProgressTotal, goalTag) {
     const taskContainer = document.querySelector('.tasks-container');
     const taskTemplate = document.querySelector('.task-template');
     const taskElement = taskTemplate.content.cloneNode(true);
@@ -505,11 +536,18 @@ const CREATE_NEW_GOAL = function (userUID, goalName, completion="0", goalDate=""
 
     // Edit Task
     taskEditButton.addEventListener("click", () => {
+        GET_GOAL_TAGS(userUID);
         selectedGoalID = goalDate;
         toggleGoalEditBox(true, "");
         goalEditNameField.value = taskTitle.textContent;
         goalEditProgressField.value = goalProgress;
         goalEditProgressTotalField.value = goalProgressTotal;
+        goalTagField.value = goalTag;
+        goalTagField.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                UPDATE_GOAL_TAGS_TO_DATABASE(useruid, goalTagField.value);
+            }
+        })
         if (isTaskCompleted != "") {
             goalEditProgressField.value = isTaskCompleted;
             goalEditProgressTotalField.value = "1";
@@ -520,7 +558,7 @@ const CREATE_NEW_GOAL = function (userUID, goalName, completion="0", goalDate=""
     taskCompleteButton.addEventListener("click", () => {
         taskCompleteButtonIcon.className = (taskCompleteButtonIcon.className == "bx bx-circle") ? "bx bxs-check-circle" : "bx bx-circle";
         isTaskCompleted = (taskCompleteButtonIcon.className == "bx bx-circle") ? "0" : "1";
-        UPDATE_GOAL_TO_DATABASE(userUID, "", goalDate, isTaskCompleted, isTaskCompleted, "1");
+        UPDATE_GOAL_TO_DATABASE(userUID, "", goalDate, isTaskCompleted, isTaskCompleted, "1", "");
     });
 
     taskContainer.appendChild(taskElement);
@@ -567,10 +605,10 @@ const READ_GOALS_FROM_DATABASE = function (userUID) {
         if (snapshots.exists()) {
             var snapshotList = [];
             snapshots.forEach((snapshot) => {
-                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion, "goal_progress": snapshot.val().goal_progress ? snapshot.val().goal_progress : "0", "goal_progress_total": snapshot.val().goal_progress_total ? snapshot.val().goal_progress_total : "1" });
+                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion, "goal_progress": snapshot.val().goal_progress ? snapshot.val().goal_progress : "0", "goal_progress_total": snapshot.val().goal_progress_total ? snapshot.val().goal_progress_total : "1", "goal_tag": snapshot.val().goal_tag ? snapshot.val().goal_tag : "" });
             });
             for (let snapshotDict of snapshotList) {
-                CREATE_NEW_GOAL(userUID, snapshotDict.goal_name, snapshotDict.goal_completion, snapshotDict.goal_date, snapshotDict.goal_progress, snapshotDict.goal_progress_total);
+                CREATE_NEW_GOAL(userUID, snapshotDict.goal_name, snapshotDict.goal_completion, snapshotDict.goal_date, snapshotDict.goal_progress, snapshotDict.goal_progress_total, snapshotDict.goal_tag);
             };
 
             const dailyGoalInfoData = { "goal_list": snapshotList, "goal_list_date": todayDate };
@@ -581,6 +619,20 @@ const READ_GOALS_FROM_DATABASE = function (userUID) {
                 });
         } else {
             console.log("No stored goals data.");
+        }
+    });
+};
+
+const GET_GOAL_TAGS = function (userUID) {
+    resetGoalTagElements();
+    const goalInfoRef = refD(database);
+    get(child(goalInfoRef, `users/${userUID}/goalTags/`)).then((snapshots) => {
+        if (snapshots.exists()) {
+            snapshots.forEach(snapshot => {
+                createGoalTags(snapshot.val().goal_tag);
+            });
+        } else {
+            console.log("No stored goal tags data.");
         }
     });
 };
@@ -624,7 +676,7 @@ const UPDATE_DAILY_GOALS_TO_DATABASE = function (userUID) {
         if (snapshots.exists()) {
             var snapshotList = [];
             snapshots.forEach((snapshot) => {
-                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion });
+                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion, "goal_tag": snapshot.val().goal_tag });
             });
             const dailyGoalInfoData = { "goal_list": snapshotList, "goal_list_date": todayDate };
             update(refD(database, `users/${userUID}/dailyGoal/${currentYear}/${monthsShort[currentMonth]}/${currentDay}`), dailyGoalInfoData)
@@ -641,26 +693,34 @@ const UPDATE_DAILY_GOALS_TO_DATABASE = function (userUID) {
     });
 };
 
-const UPDATE_GOAL_TO_DATABASE = function (userUID, goalName, goalDate, goalCompletion, goalProgress, goalProgressTotal) {
-    if (goalName != "" || goalCompletion != "") {
+const UPDATE_GOAL_TAGS_TO_DATABASE = function (userUID, goalTag) {
+    if (goalTag != "") {
+        var goalTagsInfo = { "goal_tag": goalTag };
+        update(refD(database, `users/${userUID}/goalTags/${goalTag}`), goalTagsInfo)
+            .then(() => { GET_GOAL_TAGS(userUID); })
+            .catch((error) => { alert(error.message); });
+    }
+};
 
+const UPDATE_GOAL_TO_DATABASE = function (userUID, goalName, goalDate, goalCompletion, goalProgress, goalProgressTotal, goalTag) {
+    if (goalName != "" || goalCompletion != "") {
         var updatedGoalInfoData;
         var goalProgressVal = 0;
         if (goalProgress == "" || goalProgressTotal == "") {
-            updatedGoalInfoData = createGoalInfoData(goalName, goalCompletion, goalCompletion, "1");
+            updatedGoalInfoData = createGoalInfoData(goalName, goalCompletion, goalCompletion, "1", goalTag);
         } else {
             if (Number(goalProgressTotal) == 0) {
                 alert("Progress total must be greater than 0!");
                 return false;
             } else if (Number(goalProgress) <= Number(goalProgressTotal)) {
                 goalProgressVal = (Number(goalProgress) / Number(goalProgressTotal)).toFixed(2);
-                updatedGoalInfoData = createGoalInfoData(goalName, `${goalProgressVal}`, goalProgress, goalProgressTotal);
+                updatedGoalInfoData = createGoalInfoData(goalName, `${goalProgressVal}`, goalProgress, goalProgressTotal, goalTag);
             } else {
                 alert("Progress value cannot be greater than progress total!");
                 return false;
             }
         }
-        
+        // Update goal data
         update(refD(database, `users/${userUID}/goals/${goalDate}`), updatedGoalInfoData)
             .then(() => {
                 if (goalCompletion == "") {
@@ -674,19 +734,22 @@ const UPDATE_GOAL_TO_DATABASE = function (userUID, goalName, goalDate, goalCompl
             .catch((error) => {
                 alert(`Please try again. Error: ${error.message}`);
             });
+        // Update goal tags
+        UPDATE_GOAL_TAGS_TO_DATABASE(userUID, goalTag);
     } else if (goalName == "" && goalCompletion == "") {
         alert("Goal name cannot be empty!");
     }
 };
 
-const WRITE_GOAL_TO_DATABASE = function (userUID, goalName) {
+const WRITE_GOAL_TO_DATABASE = function (userUID, goalName, goalTag) {
     if (goalName != "") {
         const goalDate = Date.now();
-        const goalInfoData = { "goal_name": goalName, "goal_date": goalDate, "goal_completion": "0" }
+        const goalInfoData = { "goal_name": goalName, "goal_date": goalDate, "goal_completion": "0", "goal_tag": goalTag };
         update(refD(database, `users/${userUID}/goals/${goalDate}`), goalInfoData)
             .then(() => {
                 READ_GOALS_FROM_DATABASE(userUID);
                 UPDATE_DAILY_GOALS_TO_DATABASE(userUID);
+                UPDATE_GOAL_TAGS_TO_DATABASE(userUID, goalTag);
                 toggleGoalEditBox(false, "");
             })
             .catch((error) => {
@@ -712,7 +775,5 @@ const CONFIRM_ACTION_CONSENT = function (confirmQuestion) {
     var userDecision = confirm(confirmQuestion);
     return userDecision;
 };
-
-createNewGoalButton.addEventListener("click", () => { goalEditNameField.value = ""; toggleGoalEditBox(true, "creation"); });
 
 cancelGoalEditButton.addEventListener("click", () => { toggleGoalEditBox(false, ""); });

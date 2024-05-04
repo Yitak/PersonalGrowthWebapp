@@ -149,8 +149,9 @@
 .goal-edit-container {
     display: flex;
     flex-direction: column;
-    gap: 5em;
+    gap: 3em;
     background: rgba(191, 197, 196, 0.9);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
     width: 60%;
     /* height: 55%; */
     border: none;
@@ -183,7 +184,7 @@
     width: 55%;
 }
 
-.goal-edit-name-field {
+.goal-edit-field {
     font-family: "Montserrat", sans-serif;
     font-size: 2.2rem;
     width: 55%;
@@ -196,7 +197,43 @@
     transition: all 0.2s ease;
 }
 
-.goal-edit-name-field:hover, .goal-edit-name-field:focus {
+.goal-edit-field:hover, .goal-edit-field:focus {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+.goal-tags-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.goal-tags-container {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    width: 55%;
+    gap: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-inline: 6%;
+    border-right: solid 2px #002720;
+}
+
+.goal-tag {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: rgba(123, 123, 123, 0.25);
+    padding: 0.6em 1.6em 0.6em 1.6em;
+    border: none;
+    outline: none;
+    border-radius: 2rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.goal-tag:hover {
     background: rgba(177, 177, 177, 0.25);
 }
 
@@ -284,6 +321,7 @@
     flex-direction: column;
     gap: 5em;
     background: rgba(191, 197, 196, 0.9);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
     width: 60%;
     /* height: 55%; */
     border: none;
@@ -894,10 +932,34 @@
 
 
 
+.screen-width-too-narrow-message {
+    display: none;
+}
+
+.screen-width-too-narrow-message h1 {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 300;
+    margin-top: 20%;
+    margin-inline: 10%;
+}
+
+
+
+
 @media only screen and (max-width: 970px) {
     .signin-signup-container {
         display: flex;
         flex-direction: column;
         align-items: center;
+    }
+}
+
+@media only screen and (max-width: 959px) {
+    .challenge-container {
+        display: none;
+    }
+    .screen-width-too-narrow-message {
+        display: flex;
     }
 }
