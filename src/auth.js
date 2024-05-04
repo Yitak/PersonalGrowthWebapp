@@ -1,0 +1,718 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence, inMemoryPersistence, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js';
+import { getDatabase, ref as refD, set, child, get, update, remove } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js';
+import { getStorage, ref as refS, uploadBytes, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js'
+
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBu4cNzPSMcjEC7yKHZqHXwBQpd_wyAFVY",
+    authDomain: "personal-growth-and-goals.firebaseapp.com",
+    projectId: "personal-growth-and-goals",
+    storageBucket: "personal-growth-and-goals.appspot.com",
+    messagingSenderId: "1052991863987",
+    appId: "1:1052991863987:web:0c92c80ef42225d7a004c6",
+    measurementId: "G-LQZ95Y8KE1"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const database = getDatabase(firebaseApp);
+const storage = getStorage(firebaseApp);
+
+// Firebase connection
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        SignInSignUpBox.style.display = "none";
+        memberPageBox.style.display = "flex";
+
+        const userUID = user.uid;
+        useruid = userUID;
+
+        READ_USER_SETTINGS(userUID);
+        READ_GOALS_FROM_DATABASE(userUID);
+
+        saveUserSettingsButton.addEventListener("click", () => { UPDATE_USER_SETTINGS(userUID, usernameField.value); });
+
+        saveGoalEditButton.addEventListener("click", () => {
+            if (goalEditBox.classList.contains("creation-mode")) {
+                WRITE_GOAL_TO_DATABASE(userUID, goalEditNameField.value);
+            } else {
+                UPDATE_GOAL_TO_DATABASE(userUID, goalEditNameField.value, selectedGoalID, "", goalEditProgressField.value, goalEditProgressTotalField.value);
+            }
+        });
+
+        removeGoalButton.addEventListener("click", () => {
+            if (CONFIRM_ACTION_CONSENT("Are you sure you want to remove this goal?")) {
+                REMOVE_GOAL_FROM_DATABASE(userUID, selectedGoalID); 
+            }
+        });
+
+        resetGoalsButton.addEventListener("click", () => {
+            if (CONFIRM_ACTION_CONSENT("Are you sure you want to reset all of today goals progress?")) {
+                RESET_TODAY_GOALS(userUID);
+            }
+        });
+
+    } else {
+        SignInSignUpBox.style.display = "flex";
+        memberPageBox.style.display = "none";
+    }
+});
+
+
+
+
+// LOGIN / SIGNUP / SIGNOUT
+
+const memberPageBox = document.querySelector('.after-auth-box');
+
+const SignInSignUpBox = document.querySelector('.before-auth-box');
+const signinEmailField = document.querySelector('.signin-email');
+const signinPasswordField = document.querySelector('.signin-password');
+const signupEmailField = document.querySelector('.signup-email');
+const signupPasswordField = document.querySelector('.signup-password');
+const signinSubmitButton = document.querySelector('.signin-submit');
+const signupSubmitButton = document.querySelector('.signup-submit');
+const signoutButton = document.querySelector('.signoutButton');
+
+const clearAllSignInSignUpInputField = function () {
+    signinEmailField.value = "";
+    signinPasswordField.value = "";
+    signupEmailField.value = "";
+    signupPasswordField.value = "";
+    signinSubmitButton.value = "";
+    signupSubmitButton.value = "";
+};
+
+const deselectButtonsOnGoalsReset = function () {
+    const taskCompletionButtonIcons = document.querySelectorAll('.taskButton.completionButton i');
+    taskCompletionButtonIcons.forEach(taskCompletionButtonIcon => {
+        taskCompletionButtonIcon.className = "bx bx-circle";
+    });
+}
+
+const validateEmail = function (emailAddress) {
+    const emailRegex = /^([a-z\d.-]+)@([a-z\d-]+)\.([a-z]{2,3})(\.[a-z]{2,3})?$/;
+    if (!emailAddress.match(emailRegex)) {
+        if (emailAddress != "") {
+            alert("Wrong email address format!");
+        } else {
+            alert("Email address field cannot be empty!");
+            
+        }
+        return false;
+    } else {
+        return true
+    }
+};
+
+const validatePassword = function (password) {
+    if (password == "") {
+        alert("Password is required!");
+        return false;
+    } else {
+        return true;
+    }
+};
+
+const LOGIN = function () {
+    signInWithEmailAndPassword(auth, signinEmailField.value, signinPasswordField.value).then((userCredential) => {
+        const user = userCredential.user;
+        clearAllSignInSignUpInputField();
+        alert("Login successfully.");
+    })
+    .catch((error) => {
+        alert(error.message);
+    });    
+};
+
+const SIGNUP = function () {
+    if (validateEmail(signupEmailField.value) && validatePassword(signupPasswordField.value)) {
+        createUserWithEmailAndPassword(auth, signupEmailField.value, signupPasswordField.value)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const userData = {
+                    email_address: signupEmailField.value,
+                    password: signupPasswordField.value,
+                    last_login: Date.now()
+                }
+                set(refD(database, 'users/' + user.uid), userData);
+            })
+            .then(() => {
+                clearAllSignInSignUpInputField();
+                alert('Account created!');
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    }
+};
+
+const SIGNOUT = function () {
+    signOut(auth)
+        .then(() => {
+            alert('Signed out successfully.');
+        })
+        .catch((error) => {
+            alert(error.message);
+        });
+};
+
+// Login & Sign up functionality
+signinSubmitButton.addEventListener("click", () => { LOGIN(); });
+signupSubmitButton.addEventListener("click", () => { SIGNUP(); });
+signoutButton.addEventListener("click", () => { SIGNOUT(); });
+
+
+
+
+// MEMBER PAGE VIEW
+
+var useruid;
+
+// User Settings
+
+const renameButton = document.querySelector('.renameButton');
+const userSettingsBox = document.querySelector('.user-settings-box');
+const username = document.querySelector('.username');
+const usernameField = document.querySelector('.username-field');
+const saveUserSettingsButton = document.querySelector('.saveUserSettingsButton');
+const cancelUserSettingsButton = document.querySelector('.cancelUserSettingsButton');
+
+const toggleUserSettingsBox = function (isDisplayed) {
+    if (isDisplayed) {
+        userSettingsBox.classList.remove("hidden");
+    } else {
+        usernameField.value = "";
+        userSettingsBox.classList.add("hidden");
+    }
+}
+
+// UPDATE USER SETTINGS
+const UPDATE_USER_SETTINGS = function (userUID, name) {
+    if (name != "") {
+        var modifiedName = name.trim();
+        var userInfo = { "username": modifiedName };
+        update(refD(database, `users/${userUID}/`), userInfo).then(() => {
+            username.textContent = modifiedName;
+            toggleUserSettingsBox(false);
+        }).catch((error) => { alert(error.message); });
+    }
+};
+
+// READ USER SETTINGS
+const READ_USER_SETTINGS = function (userUID) {
+    const userInfoRef = refD(database);
+    get(child(userInfoRef, `users/${userUID}/`)).then((snapshot) => {
+        if (snapshot.exists()) {
+            username.textContent = snapshot.val().username ? snapshot.val().username : "user";
+        }
+    });
+};
+
+renameButton.addEventListener("click", () => { toggleUserSettingsBox(true); });
+cancelUserSettingsButton.addEventListener("click", () => { toggleUserSettingsBox(false); });
+
+
+// Calendar
+
+const currentTimeRange = document.querySelector('.current-time-range');
+const days = document.querySelector('.days');
+const calendarControlButtons = document.querySelectorAll('.calendar-control-container i');
+const todayButton = document.querySelector('.todayButton');
+
+let
+    currentDate = new Date(),
+    currentDay = currentDate.getDate(),
+    currentMonth = currentDate.getMonth(),
+    currentYear = currentDate.getFullYear();
+
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const toggleGoalEditContainer = function (day, month, year) {
+    selectedDate.textContent = `${day} ${month} ${year}`;
+    if (selectedDate.textContent != todayDate) {
+        taskContainer.classList.add("hidden");
+        resetGoalsButton.disabled = true;
+        createNewGoalButton.disabled = true;
+    } else {
+        taskContainer.classList.remove("hidden");
+        oldTaskContainer.classList.add("hidden");
+        resetGoalsButton.disabled = false;
+        createNewGoalButton.disabled = false;
+    }
+};
+
+const rendarCalendar = function () {
+    let firstDateOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+    let lastDateOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    let lastDayOfMonth = new Date(currentYear, currentMonth, lastDateOfMonth).getDay();
+    let lastDateOfLastMonth = new Date(currentYear, currentMonth, 0).getDate();
+    let dayElementTag = "";
+    for(let i = firstDateOfMonth; i > 0; i--) {
+        dayElementTag += `<li class="inactive">${lastDateOfLastMonth - i + 1}</li>`;
+    }
+    for (let i = 1; i <= lastDateOfMonth; i++) {
+        let isToday = i == currentDate.getDate() && currentMonth == new Date().getMonth() && currentYear == new Date().getFullYear() ? "selectable active" : "selectable";
+        dayElementTag += `<li class="${isToday}">${i}</li>`;
+    }
+    for (let i = lastDayOfMonth; i < 6; i++) {
+        dayElementTag += `<li class="inactive">${i - lastDayOfMonth + 1}</li>`;
+    }
+    currentTimeRange.textContent = `${months[currentMonth]} ${currentYear}`;
+    days.innerHTML = dayElementTag;
+
+    const dayButtons = document.querySelectorAll('.selectable');
+    dayButtons.forEach(daybutton => {
+        daybutton.addEventListener("click", () => {
+            toggleGoalEditContainer(daybutton.textContent, monthsShort[currentMonth], currentYear);
+            READ_DAILY_GOALS_FROM_DATABASE(useruid, daybutton.textContent, monthsShort[currentMonth], currentYear);
+        });
+    });
+};
+
+rendarCalendar();
+
+calendarControlButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        currentMonth = button.classList.contains("bx-chevron-left") ? currentMonth - 1 : currentMonth + 1;
+        if (currentMonth < 0 || currentMonth > 11) {
+            currentDate = new Date(currentYear, currentMonth);
+            currentMonth = currentDate.getMonth();
+            currentYear = currentDate.getFullYear();
+        } else {
+            currentDate = new Date();
+        }
+        rendarCalendar();
+    });
+});
+
+todayButton.addEventListener("click", () => {
+    currentDate = new Date();
+    currentDay = currentDate.getDate();
+    currentMonth = currentDate.getMonth();
+    currentYear = currentDate.getFullYear();
+    toggleGoalEditContainer(currentDay, monthsShort[currentMonth], currentYear);
+    READ_DAILY_GOALS_FROM_DATABASE(useruid, currentDay, monthsShort[currentMonth], currentYear);
+    rendarCalendar();
+});
+
+
+// Goal Edit & View
+
+const selectedDate = document.querySelector('.selected-date');
+const dataUnavailableMessage = document.querySelector('.data-unavailable-message-container');
+const taskContainer = document.querySelector('.tasks-container');
+const oldTaskContainer = document.querySelector('.old-tasks-container');
+const goalEditBox = document.querySelector('.goal-edit-box');
+const goalEditBoxTitle = document.querySelector('.goal-edit-box-title');
+const goalEditNameField = document.querySelector('.goal-edit-name-field');
+const goalEditProgressField = document.querySelector('.goal-edit-progress-field');
+const goalEditProgressTotalField = document.querySelector('.goal-edit-progress-total-field');
+const resetGoalsButton = document.querySelector('.reset-goals-button');
+const createNewGoalButton = document.querySelector('.create-new-goal-button');
+const saveGoalEditButton = document.querySelector('.saveGoalEditButton');
+const cancelGoalEditButton = document.querySelector('.cancelGoalEditButton');
+const removeGoalButton = document.querySelector('.removeGoalButton');
+const dailyGoalsMeterBar = document.querySelector('.daily-goals-meter-bar');
+
+const totalWeeklyGoals = document.querySelector('.total-goals.week');
+const totalWeeklyCompletedGoals = document.querySelector('.total-completed-goals.week');
+const totalMonthlyGoals = document.querySelector('.total-goals.month');
+const totalMonthlyCompletedGoals = document.querySelector('.total-completed-goals.month');
+const weeklyGoalsProgress = document.querySelector('.circular-progress.week');
+const monthlyGoalsProgress = document.querySelector('.circular-progress.month');
+const weeklyGoalsProgressPercentage = document.querySelector('.progress-percentage.week');
+const monthlyGoalsProgressPercentage = document.querySelector('.progress-percentage.month');
+
+var selectedGoalID;
+
+const todayDate = `${currentDay} ${monthsShort[currentMonth]} ${currentYear}`;
+selectedDate.textContent = todayDate;
+
+// Helper Function
+const toggleDataUnavailableMessage = function (isDateAvailble) {
+    if (isDateAvailble) {
+        dataUnavailableMessage.classList.add("hidden");
+        if (taskContainer.classList.contains("hidden")) {
+            oldTaskContainer.classList.remove("hidden");
+        }
+    } else {
+        dataUnavailableMessage.classList.remove("hidden");
+        oldTaskContainer.classList.add("hidden");
+    }
+};
+
+const switchGoalEditBoxTitle = function () {
+    goalEditBoxTitle.textContent = goalEditBox.classList.contains("creation-mode") ? "Create New goal" : "Edit Goal";
+    saveGoalEditButton.textContent = goalEditBox.classList.contains("creation-mode") ? "Create" : "Save";
+};
+
+const toggleGoalEditBox = function (isShow, mode="") {
+    if (isShow) {
+        goalEditBox.style.visibility = "visible";
+        goalEditBox.style.opacity = 1;
+        if (mode=="creation") {
+            goalEditBox.classList.add("creation-mode");
+            switchGoalEditBoxTitle();
+        } else {
+            goalEditBox.classList.remove("creation-mode");
+            switchGoalEditBoxTitle();
+        }
+    } else {
+        goalEditBox.style.visibility = "hidden";
+        goalEditBox.style.opacity = 0;
+    }
+};
+
+const resetGoalElements = function (DEBUG_MODE=false) {
+    const minElementCount = DEBUG_MODE === true ? 2 : 1;
+    const taskContainer = document.querySelector('.tasks-container');
+    while (taskContainer.childElementCount > minElementCount) {
+        taskContainer.removeChild(taskContainer.lastElementChild);
+    }
+};
+
+const resetDailyGoalElements = function (DEBUG_MODE=false) {
+    const minElementCount = DEBUG_MODE === true ? 2 : 1;
+    const oldTaskContainer = document.querySelector('.old-tasks-container');
+    while (oldTaskContainer.childElementCount > minElementCount) {
+        oldTaskContainer.removeChild(oldTaskContainer.lastElementChild);
+    }
+};
+
+const createGoalInfoData = function (goalName, goalCompletion, goalProgress, goalProgressTotal) {
+    var goalInfoData = {};
+    if (goalName != "") {
+        Object.assign(goalInfoData, {
+            "goal_name": goalName
+        });
+    }
+    if (goalCompletion != "") {
+        Object.assign(goalInfoData, {
+            "goal_completion": goalCompletion
+        });
+    }
+    if (goalProgress != "") {
+        Object.assign(goalInfoData, {
+            "goal_progress": goalProgress
+        });
+    }
+    if (goalProgressTotal != "") {
+        Object.assign(goalInfoData, {
+            "goal_progress_total": goalProgressTotal
+        });
+    }
+    return goalInfoData;
+};
+
+const updateStatsUI = function (totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion) {
+    // Texts
+    totalWeeklyGoals.textContent = totalGoalsWeekly;
+    totalWeeklyCompletedGoals.textContent = totalGoalsWeeklyCompletion;
+    totalMonthlyGoals.textContent = totalGoalsMonthly;
+    totalMonthlyCompletedGoals.textContent = totalGoalsMonthlyCompletion;
+    // Circular Progress Bar
+    var weeklyProgress = ((totalGoalsWeeklyCompletion / totalGoalsWeekly) * 100).toFixed(0);
+    var monthlyProgress = ((totalGoalsMonthlyCompletion / totalGoalsMonthly) * 100).toFixed(0);
+    weeklyProgress = !isNaN(weeklyProgress) ? weeklyProgress : 0;
+    monthlyProgress = !isNaN(monthlyProgress) ? monthlyProgress : 0;
+    weeklyGoalsProgress.style.setProperty('--progress', weeklyProgress);
+    monthlyGoalsProgress.style.setProperty('--progress', monthlyProgress);
+    weeklyGoalsProgressPercentage.textContent = `${weeklyProgress}%`;
+    monthlyGoalsProgressPercentage.textContent = `${monthlyProgress}%`;
+};
+
+
+// PROGRESS BAR
+const PROGRESS_BAR_UPDATE = function (userUID, isDateAvailble, day="", month="", year="") {
+    const dailyGoalInfoRef = refD(database);
+    if (isDateAvailble) {
+        get(child(dailyGoalInfoRef, `users/${userUID}/dailyGoal/${year}/${month}/${day}`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                var snapshotInfo = snapshot.val().goal_list;
+                var totalTask = snapshotInfo.length;
+                var finishedTask = 0;
+                for (let i = 0; i < totalTask; i++) {
+                    finishedTask += Number(snapshotInfo[i].goal_completion);
+                }
+                let progressBarHeight = (1 - finishedTask / totalTask) * 100;
+                dailyGoalsMeterBar.style.height = `${progressBarHeight}%`;
+            } else {
+                console.log("No stored goals data.");
+                dailyGoalsMeterBar.style.height = "100%";
+            }
+        });
+    } else {
+        get(child(dailyGoalInfoRef, `users/${userUID}/goals/`)).then((snapshots) => {
+            if (snapshots.exists()) {
+                var finishedTask = 0;
+                var totalTask = 0;
+                snapshots.forEach((snapshot) => {
+                    finishedTask += (snapshot.val().goal_completion) ? Number(snapshot.val().goal_completion) : 0;
+                    totalTask += 1;
+                });
+                let progressBarHeight = (1 - finishedTask / totalTask) * 100;
+                dailyGoalsMeterBar.style.height = `${progressBarHeight}%`;
+            } else {
+                console.log("No stored goals data.");
+                dailyGoalsMeterBar.style.height = "100%";
+            }
+        });
+    }  
+};
+
+
+// RESET TODAY's GOALS
+const RESET_TODAY_GOALS = function (userUID) {
+    const goalInfoRef = refD(database);
+    get(child(goalInfoRef, `users/${userUID}/goals/`)).then((snapshots) => {
+        if (snapshots.exists()) {
+            snapshots.forEach((snapshot) => {
+                const resetGoalInfoData = { "goal_completion": "0", "goal_progress": "0", "goal_progress_total": "1" };
+                update(refD(database, `users/${userUID}/goals/${snapshot.val().goal_date}/`), resetGoalInfoData)
+                    .then(() => {
+                        deselectButtonsOnGoalsReset();
+                        PROGRESS_BAR_UPDATE(userUID, false);
+                        GET_GOALS_STATISTICS(userUID, todayDate);
+                        UPDATE_DAILY_GOALS_TO_DATABASE(userUID);
+                    })
+                    .catch((error) => {
+                        alert(`Please try again. Error: ${error.message}`);
+                    });
+            });
+        } else {
+            console.log("No stored goals data.");
+        }
+    });
+};
+
+
+// CREATION
+const CREATE_NEW_GOAL = function (userUID, goalName, completion="0", goalDate="", goalProgress, goalProgressTotal) {
+    const taskContainer = document.querySelector('.tasks-container');
+    const taskTemplate = document.querySelector('.task-template');
+    const taskElement = taskTemplate.content.cloneNode(true);
+    const taskCompleteButton = taskElement.querySelector('.completionButton');
+    const taskCompleteButtonIcon = taskElement.querySelector('.completionButton i');
+    const taskTitle = taskElement.querySelector('.task-title');
+    const taskEditButton = taskElement.querySelector('.taskEditButton');
+
+    var isTaskCompleted = "";
+
+    taskTitle.textContent = goalName;
+
+    // Edit Task
+    taskEditButton.addEventListener("click", () => {
+        selectedGoalID = goalDate;
+        toggleGoalEditBox(true, "");
+        goalEditNameField.value = taskTitle.textContent;
+        goalEditProgressField.value = goalProgress;
+        goalEditProgressTotalField.value = goalProgressTotal;
+        if (isTaskCompleted != "") {
+            goalEditProgressField.value = isTaskCompleted;
+            goalEditProgressTotalField.value = "1";
+        }
+    });
+    // Complete Task button
+    taskCompleteButtonIcon.className = (completion == "1" || completion == "1.00") ? "bx bxs-check-circle" : "bx bx-circle";
+    taskCompleteButton.addEventListener("click", () => {
+        taskCompleteButtonIcon.className = (taskCompleteButtonIcon.className == "bx bx-circle") ? "bx bxs-check-circle" : "bx bx-circle";
+        isTaskCompleted = (taskCompleteButtonIcon.className == "bx bx-circle") ? "0" : "1";
+        UPDATE_GOAL_TO_DATABASE(userUID, "", goalDate, isTaskCompleted, isTaskCompleted, "1");
+    });
+
+    taskContainer.appendChild(taskElement);
+};
+
+const CREATE_NEW_DAILY_GOAL = function (snapshotInfo) {
+    const oldTaskContainer = document.querySelector('.old-tasks-container');
+    const oldTaskTemplate = document.querySelector('.old-task-template');
+    const oldTaskElement = oldTaskTemplate.content.cloneNode(true);
+    const oldTaskTitle = oldTaskElement.querySelector('.old-task-title');
+    const oldTaskPercentage = oldTaskElement.querySelector('.old-task-percentage');
+    oldTaskTitle.textContent = snapshotInfo.goal_name;
+    oldTaskPercentage.textContent = `${Math.floor(Number(snapshotInfo.goal_completion)*100)}%`;
+    oldTaskContainer.appendChild(oldTaskElement);
+};
+
+
+// READ
+const READ_DAILY_GOALS_FROM_DATABASE = function (userUID, day, month, year) {
+    resetDailyGoalElements();
+    const dailyGoalInfoRef = refD(database);
+    get(child(dailyGoalInfoRef, `users/${userUID}/dailyGoal/${year}/${month}/${day}`)).then((snapshot) => {
+        toggleDataUnavailableMessage(snapshot.exists());
+        if (snapshot.exists()) {
+            var snapshotInfo = snapshot.val().goal_list;
+            for (let i = 0; i < snapshotInfo.length; i++) {
+                CREATE_NEW_DAILY_GOAL(snapshotInfo[i]);
+            }
+        } else {
+            console.log("No stored goals data.");
+        }
+        PROGRESS_BAR_UPDATE(userUID, true, day, month, year);
+        GET_GOALS_STATISTICS(userUID, `${day} ${month} ${year}`);
+    });
+};
+
+const READ_GOALS_FROM_DATABASE = function (userUID) {
+    resetGoalElements();
+    const goalInfoRef = refD(database);
+    get(child(goalInfoRef, `users/${userUID}/goals/`)).then((snapshots) => {
+        PROGRESS_BAR_UPDATE(userUID, false);
+        GET_GOALS_STATISTICS(userUID, todayDate);
+        toggleDataUnavailableMessage(snapshots.exists());
+        if (snapshots.exists()) {
+            var snapshotList = [];
+            snapshots.forEach((snapshot) => {
+                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion, "goal_progress": snapshot.val().goal_progress ? snapshot.val().goal_progress : "0", "goal_progress_total": snapshot.val().goal_progress_total ? snapshot.val().goal_progress_total : "1" });
+            });
+            for (let snapshotDict of snapshotList) {
+                CREATE_NEW_GOAL(userUID, snapshotDict.goal_name, snapshotDict.goal_completion, snapshotDict.goal_date, snapshotDict.goal_progress, snapshotDict.goal_progress_total);
+            };
+
+            const dailyGoalInfoData = { "goal_list": snapshotList, "goal_list_date": todayDate };
+            update(refD(database, `users/${userUID}/dailyGoal/${currentYear}/${monthsShort[currentMonth]}/${currentDay}`), dailyGoalInfoData)
+                .then(() => { })
+                .catch((error) => {
+                    alert(`Please try again. Error: ${error.message}`);
+                });
+        } else {
+            console.log("No stored goals data.");
+        }
+    });
+};
+
+const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
+    let [day, month, year] = selectedDate.split(/\s+/);
+    const goalStatsRef = refD(database);
+    get(child(goalStatsRef, `users/${userUID}/dailyGoal/${year}/${month}`)).then((snapshots) => {
+        if (snapshots.exists()) {
+            var totalGoalsWeekly = 0;
+            var totalGoalsWeeklyCompletion = 0;
+            var totalGoalsMonthly = 0;
+            var totalGoalsMonthlyCompletion = 0;
+            for (let i = 0; i < snapshots.val().length; i++) {
+                if (snapshots.val()[i]) {
+                    var snapshot = snapshots.val()[i].goal_list;
+                    var snapshotDay = Number(snapshots.val()[i].goal_list_date.split(/\s+/)[0]);
+                    for (let j = 0; j < snapshot.length; j++) {
+                        // Weekly Stats
+                        if (snapshotDay <= day && snapshotDay >= day - 6) {
+                            totalGoalsWeeklyCompletion += Number(snapshot[j].goal_completion);
+                            totalGoalsWeekly += 1;
+                        }
+                        // Monthly Stats
+                        totalGoalsMonthlyCompletion += Number(snapshot[j].goal_completion);
+                        totalGoalsMonthly += 1;
+                    }
+                }
+            }
+            updateStatsUI(totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion);
+        } else {
+            updateStatsUI(0, 0, 0, 0);
+        }
+    });
+};
+
+// WRITE
+const UPDATE_DAILY_GOALS_TO_DATABASE = function (userUID) {
+    const goalInfoRef = refD(database);
+    get(child(goalInfoRef, `users/${userUID}/goals/`)).then((snapshots) => {
+        if (snapshots.exists()) {
+            var snapshotList = [];
+            snapshots.forEach((snapshot) => {
+                snapshotList.push({ "goal_name": snapshot.val().goal_name, "goal_date": snapshot.val().goal_date, "goal_completion": snapshot.val().goal_completion });
+            });
+            const dailyGoalInfoData = { "goal_list": snapshotList, "goal_list_date": todayDate };
+            update(refD(database, `users/${userUID}/dailyGoal/${currentYear}/${monthsShort[currentMonth]}/${currentDay}`), dailyGoalInfoData)
+                .then(() => {
+                    PROGRESS_BAR_UPDATE(userUID, true, currentDay, monthsShort[currentMonth], currentYear);
+                    GET_GOALS_STATISTICS(userUID, `${currentDay} ${monthsShort[currentMonth]} ${currentYear}`);
+                })
+                .catch((error) => {
+                    alert(`Please try again. Error: ${error.message}`);
+                });
+        } else {
+            console.log("No stored goals data.");
+        }
+    });
+};
+
+const UPDATE_GOAL_TO_DATABASE = function (userUID, goalName, goalDate, goalCompletion, goalProgress, goalProgressTotal) {
+    if (goalName != "" || goalCompletion != "") {
+
+        var updatedGoalInfoData;
+        var goalProgressVal = 0;
+        if (goalProgress == "" || goalProgressTotal == "") {
+            updatedGoalInfoData = createGoalInfoData(goalName, goalCompletion, goalCompletion, "1");
+        } else {
+            if (Number(goalProgressTotal) == 0) {
+                alert("Progress total must be greater than 0!");
+                return false;
+            } else if (Number(goalProgress) <= Number(goalProgressTotal)) {
+                goalProgressVal = (Number(goalProgress) / Number(goalProgressTotal)).toFixed(2);
+                updatedGoalInfoData = createGoalInfoData(goalName, `${goalProgressVal}`, goalProgress, goalProgressTotal);
+            } else {
+                alert("Progress value cannot be greater than progress total!");
+                return false;
+            }
+        }
+        
+        update(refD(database, `users/${userUID}/goals/${goalDate}`), updatedGoalInfoData)
+            .then(() => {
+                if (goalCompletion == "") {
+                    READ_GOALS_FROM_DATABASE(userUID);
+                    toggleGoalEditBox(false, "");
+                }
+                PROGRESS_BAR_UPDATE(userUID, false);
+                GET_GOALS_STATISTICS(userUID, todayDate);
+                UPDATE_DAILY_GOALS_TO_DATABASE(userUID);
+            })
+            .catch((error) => {
+                alert(`Please try again. Error: ${error.message}`);
+            });
+    } else if (goalName == "" && goalCompletion == "") {
+        alert("Goal name cannot be empty!");
+    }
+};
+
+const WRITE_GOAL_TO_DATABASE = function (userUID, goalName) {
+    if (goalName != "") {
+        const goalDate = Date.now();
+        const goalInfoData = { "goal_name": goalName, "goal_date": goalDate, "goal_completion": "0" }
+        update(refD(database, `users/${userUID}/goals/${goalDate}`), goalInfoData)
+            .then(() => {
+                READ_GOALS_FROM_DATABASE(userUID);
+                UPDATE_DAILY_GOALS_TO_DATABASE(userUID);
+                toggleGoalEditBox(false, "");
+            })
+            .catch((error) => {
+                alert(`Please try again. Error: ${error.message}`);
+            });
+    } else {
+        alert("Goal name cannot be empty!");
+    }
+};
+
+
+// DELETION
+const REMOVE_GOAL_FROM_DATABASE = function (userUID, goalID) {
+    const deleteGoalTask = refD(database, `users/${userUID}/goals/${goalID}`);
+    if (goalID != "") {
+        remove(deleteGoalTask)
+            .then(() => { READ_GOALS_FROM_DATABASE(userUID); UPDATE_DAILY_GOALS_TO_DATABASE(userUID); toggleGoalEditBox(false, ""); })
+            .catch((error) => { alert(error.message); });
+    }
+};
+
+const CONFIRM_ACTION_CONSENT = function (confirmQuestion) {
+    var userDecision = confirm(confirmQuestion);
+    return userDecision;
+};
+
+createNewGoalButton.addEventListener("click", () => { goalEditNameField.value = ""; toggleGoalEditBox(true, "creation"); });
+
+cancelGoalEditButton.addEventListener("click", () => { toggleGoalEditBox(false, ""); });

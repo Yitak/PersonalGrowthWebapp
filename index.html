@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <title>My Personal Goals & Targets</title>
+</head>
+<body>
+
+    <!--------------------- POPUPs --------------------->
+    <!------------- Goals Edit & Settings ------------->
+    <div class="goal-edit-box"> <!-- Add classname "creation-mode" to create new goal -->
+        <div class="goal-edit-container">
+            <h1 class="goal-edit-box-title">Edit Goal</h1>
+            <div class="goal-edit-input-box">
+                <p>Goal name:</p>
+                <input type="text" class="goal-edit-name-field">
+            </div>
+            <div class="goal-edit-input-box goal-progress">
+                <p>Custom progress:</p>
+                <div class="custom-goal-progress-input-container">
+                    <input type="text" class="goal-edit-custom-field goal-edit-progress-field">
+                    <p>/</p>
+                    <input type="text" class="goal-edit-custom-field goal-edit-progress-total-field">
+                </div>
+            </div>
+            <div class="goal-edit-control-container">
+                <button type="button" class="popupControlButtons saveGoalEditButton">Save</button>
+                <button type="button" class="popupControlButtons cancelGoalEditButton">Cancel</button>
+                <button type="button" class="popupControlButtons removeGoalButton">Remove</button>
+            </div>
+        </div>
+    </div>
+    <!--------------- Username Settings --------------->
+    <div class="user-settings-box hidden">
+        <div class="user-settings-container">
+            <h1 class="user-settings-box-title">Hello! Fancy me calling your new name?</h1>
+            <input type="text" class="username-field">
+            <div class="user-settings-control-container">
+                <button type="button" class="popupControlButtons saveUserSettingsButton">Save</button>
+                <button type="button" class="popupControlButtons cancelUserSettingsButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!----------------------------------------- LOGIN / SIGNUP PAGE ----------------------------------------->
+    <div class="before-auth-box">
+        <div class="before-auth-container">
+            <h1>My Personal Goals & Targets</h1>
+            <div class="signin-signup-container">
+                <!-- Sign in -->
+                <div class="signin-signup-form signin-form">
+                    <h2>Login</h2>
+                    <div class="input-box">
+                        <p>Email:</p>
+                        <input type="text" class="input-field signin-email" placeholder="Email">
+                    </div>
+                    <div class="input-box">
+                        <p>Password:</p>
+                        <input type="password" class="input-field signin-password" placeholder="Password">
+                    </div>
+                    <div class="button-container">
+                        <button type="button" class="submit-button signin-submit" >Login</button>
+                    </div>
+                </div>
+                <!-- Sign up -->
+                <div class="signin-signup-form signup-form">
+                    <h2>Sign Up</h2>
+                    <div class="input-box">
+                        <p>Email:</p>
+                        <input type="text" class="input-field signup-email" placeholder="Email">
+                    </div>
+                    <div class="input-box">
+                        <p>Password:</p>
+                        <input type="password" class="input-field signup-password" placeholder="Password">
+                    </div>
+                    <div class="button-container">
+                        <button type="button" class="submit-button signup-submit" >Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------------------------------- MEMBER PAGE --------------------------------------------->
+    <div class="after-auth-box">
+        <div class="after-auth-container">
+
+            <div class="greeting-message-container">
+                <h1>Welcome back <span class="username"></span>!</h1>
+                <h2>Hope your day is going well!</h2>
+                <div class="userButtons-container">
+                    <button type="button" class="userButtons renameButton">Your name?</button>
+                    <button type="button" class="userButtons signoutButton">Log out</button>
+                </div>
+            </div>
+            
+            <div class="challenge-container">
+                <!---------------------------------- Calendar ---------------------------------->
+                <div class="module-box">
+                    <h1>Calendar</h1>
+                    <div class="calendar-container">
+                        <header>
+                            <p class="current-time-range">May 2024</p>
+                            <div class="calendar-control-container">
+                                <i class='bx bx-chevron-left calendar'></i>
+                                <button type="button" class="todayButton">Today</button>
+                                <i class='bx bx-chevron-right calendar'></i>
+                            </div>
+                        </header>
+                        <div class="calendar">
+                            <ul class="weeks">
+                                <li>Sun</li>
+                                <li>Mon</li>
+                                <li>Tue</li>
+                                <li>Wed</li>
+                                <li>Thu</li>
+                                <li>Fri</li>
+                                <li>Sat</li>
+                            </ul>
+                            <ul class="days"></ul>
+                        </div>
+                    </div>
+                    <!------------------------------- Statistics ------------------------------->
+                    <div class="statistics-container">
+                        <h2>Weekly Progress</h2>
+                        <div class="data-visualisation-container">
+                            <div class="stats-number-container">
+                                <div class="number-box"><p>Total goals count:</p><span class="total-goals week">0</span></div>
+                                <div class="number-box"><p>Completed goals count:</p><span class="total-completed-goals week">0</span></div>
+                            </div>
+                            <div class="pie-chart-container">
+                                <p class="progress-percentage week">0%</p>
+                                <svg width="250" height="250" viewBox="0 0 250 250" class="circular-progress week">
+                                    <circle class="bg"></circle>
+                                    <circle class="fg"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                        <h2>Monthly Progress</h2>
+                        <div class="data-visualisation-container">
+                            <div class="stats-number-container">
+                                <div class="number-box"><p>Total goals count:</p><span class="total-goals month">0</span></div>
+                                <div class="number-box"><p>Completed goals count:</p><span class="total-completed-goals month">0</span></div>
+                            </div>
+                            <div class="pie-chart-container">
+                                <p class="progress-percentage month">0%</p>
+                                <svg width="250" height="250" viewBox="0 0 250 250" class="circular-progress month">
+                                    <circle class="bg"></circle>
+                                    <circle class="fg"></circle>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--------------------------------- Daily Goals --------------------------------->
+                <div class="module-box daily-goals">
+                    <h1>Daily Goals</h1>
+                    <div class="daily-goals-container">
+                        <div class="header-control">
+                            <h2 class="selected-date">2 May 2024</h2>
+                            <div class="header-buttons-container">
+                                <button type="button" class="header-button reset-goals-button">Reset</button>
+                                <button type="button" class="header-button create-new-goal-button">Create</button>
+                            </div>
+                        </div>
+                        <div class="linebreak"></div>
+                        <!--------- Data Unavailable Message --------->
+                        <div class="data-unavailable-message-container hidden">
+                            <h3>No available data for the selected day.</h3>
+                        </div>
+                        <!--------- Goal Settings (on today) --------->
+                        <div class="tasks-container">
+                            <template class="task-template">
+                                <div class="task">
+                                    <button type="button" class="taskButton completionButton"><i class='bx bx-circle'></i></button>
+                                    <p class="task-title"></p>
+                                    <button type="button" class="taskButton taskEditButton"><i class='bx bxs-edit'></i></button>
+                                </div>
+                            </template>
+                        </div>
+                        <!-------- Goal Viewing (except today) -------->
+                        <div class="old-tasks-container hidden">
+                            <template class="old-task-template">
+                                <div class="old-task">
+                                    <p class="old-task-title"></p>
+                                    <p class="old-task-status"><span class="old-task-percentage"></span>completed</p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <!------------------------------ Daily Goals Meter ------------------------------>
+                <div class="module-box daily-goals-meter">
+                    <h1>Progress</h1>
+                    <div class="daily-goals-meter-container">
+                        <div class="daily-goals-meter-bar-container">
+                            <div class="daily-goals-meter-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/auth.js"></script>
+</body>
+</html>
