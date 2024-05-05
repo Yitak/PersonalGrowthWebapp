@@ -11,6 +11,18 @@
 <body>
 
     <!--------------------- POPUPs --------------------->
+    <!--------------- Username Settings --------------->
+    <div class="user-settings-box hidden">
+        <div class="user-settings-container">
+            <h1 class="user-settings-box-title">Hello! Fancy me calling your new name?</h1>
+            <input type="text" class="username-field">
+            <div class="user-settings-control-container">
+                <button type="button" class="popupControlButtons saveUserSettingsButton">Save</button>
+                <button type="button" class="popupControlButtons cancelUserSettingsButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!------------- Goals Edit & Settings ------------->
     <div class="goal-edit-box"> <!-- Add classname "creation-mode" to create new goal -->
         <div class="goal-edit-container">
@@ -43,18 +55,31 @@
             </div>
         </div>
     </div>
-    <!--------------- Username Settings --------------->
-    <div class="user-settings-box hidden">
-        <div class="user-settings-container">
-            <h1 class="user-settings-box-title">Hello! Fancy me calling your new name?</h1>
-            <input type="text" class="username-field">
-            <div class="user-settings-control-container">
-                <button type="button" class="popupControlButtons saveUserSettingsButton">Save</button>
-                <button type="button" class="popupControlButtons cancelUserSettingsButton">Cancel</button>
+
+    <!--------------- Expand Chart View --------------->
+    <div class="expand-chart-view-box hidden">
+        <div class="expand-chart-view-container">
+            <button type="button" class="closeChartViewButton"><i class='bx bx-x'></i></button>
+            <h1><span class="chart-data-period">Weekly</span> Goals Statistics</h1>
+            <div class="chart-box">
+                <div class="y-axis-container">
+                    <p class="y-axis-title">Progress</p>
+                    <div class="y-ticks-container">
+                        <div class="y-limit">100%</div>
+                        <div class="y-limit">0%</div>
+                    </div>
+                </div>
+                <div class="bars-container">
+                    <template class="bar-template">
+                        <div class="bar-label-container">
+                            <div class="bar-container"><div class="bar"><p class="bar-value"><span class="bar-percent"></span>%</p></div></div>
+                            <div class="x-label-container"><div class="x-label"></div></div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
     </div>
-
     
     <!----------------------------------------- LOGIN / SIGNUP PAGE ----------------------------------------->
     <div class="before-auth-box">
@@ -136,28 +161,34 @@
                     </div>
                     <!------------------------------- Statistics ------------------------------->
                     <div class="statistics-container">
-                        <h2>Weekly Progress</h2>
+                        <div class="statistics-container-header">
+                            <h2>Weekly Progress</h2>
+                            <button type="button" class="more-statistics-button week">More</button>
+                        </div>
                         <div class="data-visualisation-container">
                             <div class="stats-number-container">
                                 <div class="number-box"><p>Total goals count:</p><span class="total-goals week">0</span></div>
                                 <div class="number-box"><p>Completed goals count:</p><span class="total-completed-goals week">0</span></div>
                             </div>
                             <div class="pie-chart-container">
-                                <p class="progress-percentage week">0%</p>
+                                <p class="progress-percentage"><span class="progress-percent week"></span>%</p>
                                 <svg width="250" height="250" viewBox="0 0 250 250" class="circular-progress week">
                                     <circle class="bg"></circle>
                                     <circle class="fg"></circle>
                                 </svg>
                             </div>
                         </div>
-                        <h2>Monthly Progress</h2>
+                        <div class="statistics-container-header">
+                            <h2>Monthly Progress</h2>
+                            <button type="button" class="more-statistics-button month">More</button>
+                        </div>
                         <div class="data-visualisation-container">
                             <div class="stats-number-container">
                                 <div class="number-box"><p>Total goals count:</p><span class="total-goals month">0</span></div>
                                 <div class="number-box"><p>Completed goals count:</p><span class="total-completed-goals month">0</span></div>
                             </div>
                             <div class="pie-chart-container">
-                                <p class="progress-percentage month">0%</p>
+                                <p class="progress-percentage"><span class="progress-percent month"></span>%</p>
                                 <svg width="250" height="250" viewBox="0 0 250 250" class="circular-progress month">
                                     <circle class="bg"></circle>
                                     <circle class="fg"></circle>

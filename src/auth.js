@@ -60,6 +60,19 @@ onAuthStateChanged(auth, (user) => {
             }
         });
 
+        moreWeeklyStatisticsButtons.forEach(moreWeeklyStatisticsButton => {
+            moreWeeklyStatisticsButton.addEventListener("click", () => {
+                toggleMoreDetailedStatisticsView(true);
+                if (moreWeeklyStatisticsButton.classList.contains("week")) {
+                    expandChartViewBoxTitle.textContent = "Weekly";
+                    GET_GOALS_MORE_DETAILED_STATISTICS(userUID, selectedDate.textContent, "week");
+                } else {
+                    expandChartViewBoxTitle.textContent = "Monthly";
+                    GET_GOALS_MORE_DETAILED_STATISTICS(userUID, selectedDate.textContent, "month");
+                }
+            });
+        });
+
     } else {
         SignInSignUpBox.style.display = "flex";
         memberPageBox.style.display = "none";
@@ -331,8 +344,12 @@ const totalMonthlyGoals = document.querySelector('.total-goals.month');
 const totalMonthlyCompletedGoals = document.querySelector('.total-completed-goals.month');
 const weeklyGoalsProgress = document.querySelector('.circular-progress.week');
 const monthlyGoalsProgress = document.querySelector('.circular-progress.month');
-const weeklyGoalsProgressPercentage = document.querySelector('.progress-percentage.week');
-const monthlyGoalsProgressPercentage = document.querySelector('.progress-percentage.month');
+const weeklyGoalsProgressPercentage = document.querySelector('.progress-percent.week');
+const monthlyGoalsProgressPercentage = document.querySelector('.progress-percent.month');
+const expandChartViewBox = document.querySelector('.expand-chart-view-box');
+const expandChartViewBoxTitle = document.querySelector('.chart-data-period');
+const moreWeeklyStatisticsButtons = document.querySelectorAll('.more-statistics-button');
+const closeChartViewButton = document.querySelector('.closeChartViewButton');
 
 var selectedGoalID;
 
@@ -398,6 +415,37 @@ const resetGoalTagElements = function (DEBUG_MODE=false) {
     }
 };
 
+const resetBarElements = function (DEBUG_MODE=false) {
+    const minElementCount = DEBUG_MODE === true ? 2 : 1;
+    const barsContainer = document.querySelector('.bars-container');
+    while (barsContainer.childElementCount > minElementCount) {
+        barsContainer.removeChild(barsContainer.lastElementChild);
+    }
+};
+
+const createGoalsProgressBar = function (barValue, barName) {
+    const barsContainer = document.querySelector('.bars-container');
+    const barTemplate = document.querySelector('.bar-template');
+    const barElement = barTemplate.content.cloneNode(true);
+    const bar = barElement.querySelector('.bar');
+    const barValueText = barElement.querySelector('.bar-value');
+    const barPercent = barElement.querySelector('.bar-percent');
+    const xLabel = barElement.querySelector('.x-label');
+    xLabel.textContent = barName;
+    bar.style.height = `${barValue}%`;
+    if (barValue > 95) {
+        barValueText.style.top = "0.5rem";
+        barValueText.style.color = "#49fee0";
+    } else if (barValue >= 30 && barValue < 65) {
+        bar.style.background = "#43d0b9";
+    } else if (barValue < 30) {
+        barValueText.style.color = "#772322";
+        bar.style.background = "#e2807e";
+    }
+    barPercent.style.setProperty('--num', barValue);
+    barsContainer.appendChild(barElement);
+};
+
 const createGoalTags = function (goalTagName) {
     const goalTagsContainer = document.querySelector('.goal-tags-container');
     const goalTagTemplate = document.querySelector('.goal-tag-template');
@@ -438,7 +486,15 @@ const createGoalInfoData = function (goalName, goalCompletion, goalProgress, goa
     return goalInfoData;
 };
 
-const updateStatsUI = function (totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion) {
+const toggleMoreDetailedStatisticsView = function (isDisplayed) {
+    if (isDisplayed) {
+        expandChartViewBox.classList.remove("hidden");
+    } else {
+        expandChartViewBox.classList.add("hidden");
+    }
+};
+
+const updateStatsUIBasic = function (totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion) {
     // Texts
     totalWeeklyGoals.textContent = totalGoalsWeekly;
     totalWeeklyCompletedGoals.textContent = totalGoalsWeeklyCompletion;
@@ -451,8 +507,8 @@ const updateStatsUI = function (totalGoalsWeekly, totalGoalsWeeklyCompletion, to
     monthlyProgress = !isNaN(monthlyProgress) ? monthlyProgress : 0;
     weeklyGoalsProgress.style.setProperty('--progress', weeklyProgress);
     monthlyGoalsProgress.style.setProperty('--progress', monthlyProgress);
-    weeklyGoalsProgressPercentage.textContent = `${weeklyProgress}%`;
-    monthlyGoalsProgressPercentage.textContent = `${monthlyProgress}%`;
+    weeklyGoalsProgressPercentage.style.setProperty('--num', weeklyProgress);
+    monthlyGoalsProgressPercentage.style.setProperty('--num', monthlyProgress);
 };
 
 
@@ -638,6 +694,7 @@ const GET_GOAL_TAGS = function (userUID) {
 };
 
 const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
+    resetBarElements();
     let [day, month, year] = selectedDate.split(/\s+/);
     const goalStatsRef = refD(database);
     get(child(goalStatsRef, `users/${userUID}/dailyGoal/${year}/${month}`)).then((snapshots) => {
@@ -662,9 +719,63 @@ const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
                     }
                 }
             }
-            updateStatsUI(totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion);
+            updateStatsUIBasic(totalGoalsWeekly, totalGoalsWeeklyCompletion, totalGoalsMonthly, totalGoalsMonthlyCompletion);
         } else {
-            updateStatsUI(0, 0, 0, 0);
+            updateStatsUIBasic(0, 0, 0, 0);
+        }
+    });
+};
+
+const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, viewMode="month") {
+    resetBarElements();
+    const yAxisContainer = document.querySelector('.y-axis-container');
+    yAxisContainer.style.visibility = "visible";
+    let [day, month, year] = selectedDate.split(/\s+/);
+    const goalStatsRef = refD(database);
+    get(child(goalStatsRef, `users/${userUID}/dailyGoal/${year}/${month}`)).then((snapshots) => {
+        if (snapshots.exists()) {
+            let goalProgressByTagsInfo = {};
+            for (let i = 0; i < snapshots.val().length; i++) {
+                if (snapshots.val()[i]) {
+                    var snapshot = snapshots.val()[i].goal_list;
+                    var snapshotDay = Number(snapshots.val()[i].goal_list_date.split(/\s+/)[0]);
+                    for (let j = 0; j < snapshot.length; j++) {
+                        if (viewMode == "month") {
+                            // Monthly Stats
+                            var goalTagMonthly = snapshot[j].goal_tag ? snapshot[j].goal_tag : "Untagged";
+                            var goalCompletionMonthly = snapshot[j].goal_completion ? Number(snapshot[j].goal_completion) : 0;
+                            if (!(goalTagMonthly in goalProgressByTagsInfo)) {
+                                goalProgressByTagsInfo[goalTagMonthly] = { "goal_completion": goalCompletionMonthly, "goal_total": 1 };
+                            } else {
+                                goalProgressByTagsInfo[goalTagMonthly].goal_completion += goalCompletionMonthly;
+                                goalProgressByTagsInfo[goalTagMonthly].goal_total += 1;
+                            }
+                        } else {
+                            // Weekly Stats
+                            if (snapshotDay <= day && snapshotDay >= day - 6) {
+                                var goalTagWeekly = snapshot[j].goal_tag ? snapshot[j].goal_tag : "Untagged";
+                                var goalCompletionWeekly = snapshot[j].goal_completion ? Number(snapshot[j].goal_completion) : 0;
+                                if (!(goalTagWeekly in goalProgressByTagsInfo)) {
+                                    goalProgressByTagsInfo[goalTagWeekly] = { "goal_completion": goalCompletionWeekly, "goal_total": 1 };
+                                } else {
+                                    goalProgressByTagsInfo[goalTagWeekly].goal_completion += goalCompletionWeekly;
+                                    goalProgressByTagsInfo[goalTagWeekly].goal_total += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (goalProgressByTagsInfo != {}) {
+                Object.keys(goalProgressByTagsInfo).forEach((goalTag) => {
+                    var goalValue = (goalProgressByTagsInfo[goalTag].goal_completion / goalProgressByTagsInfo[goalTag].goal_total * 100).toFixed(0);
+                    createGoalsProgressBar(goalValue, goalTag);
+                });
+            } else {
+                console.log("No stored tags data.");
+            }
+        } else {
+            console.log("No stored goals data.");
         }
     });
 };
@@ -777,3 +888,5 @@ const CONFIRM_ACTION_CONSENT = function (confirmQuestion) {
 };
 
 cancelGoalEditButton.addEventListener("click", () => { toggleGoalEditBox(false, ""); });
+
+closeChartViewButton.addEventListener("click", () => { toggleMoreDetailedStatisticsView(false); });
