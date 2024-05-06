@@ -407,8 +407,13 @@
     border-radius: 4rem;
 }
 
+.expand-chart-header-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .closeChartViewButton {
-    align-self: flex-start;
     border: none;
     outline: none;
     background: none;
@@ -431,6 +436,52 @@
     background: rgba(135, 197, 187, 0.8);
 }
 
+.navigate-page-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+}
+
+.navigatePageButton {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+}
+
+.navigatePageButton i {
+    border: none;
+    outline: none;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    font-size: 1.8rem;
+    font-weight: 900;
+    border-radius: 50%;
+    transition: all 0.25s ease-in-out;
+}
+
+.navigatePageButton:enabled i {
+    background: rgba(129, 171, 165, 0.8);
+    color: var(--title-color);
+}
+
+.navigatePageButton:disabled {
+    cursor: default;
+}
+
+.navigatePageButton:disabled i {
+    background: rgba(129, 171, 165, 0.45);
+    color: rgba(52, 68, 65, 0.4);
+}
+
+.navigatePageButton:disabled i:hover {
+    background: rgba(129, 171, 165, 0.45);
+}
+
+.navigatePageButton i:hover {
+    background: rgba(135, 197, 187, 0.8);
+}
 
 .expand-chart-view-container h1 {
     align-self: center;
@@ -440,11 +491,17 @@
 }
 
 .chart-box {
+    opacity: 1;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 2em;
     margin-bottom: 5em;
+    transition: all 0.25s ease-in-out;
+}
+
+.chart-box.hidden {
+    display: none;
 }
 
 .y-axis-container {
@@ -473,7 +530,7 @@
 
 .bars-container {
     position: relative;
-    max-width: 65%;
+    max-width: 70%;
     height: 45vh;
     display: flex;
     justify-content: center;
@@ -549,6 +606,146 @@
     font-weight: 400;
     /* background: red; */
     overflow-y: auto;
+}
+
+.pie-chart-box {
+    opacity: 1; /* Set to 1 when debug, otherwise 0 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2em;
+    margin-bottom: 5em;
+    transition: all 0.25s ease-in-out;
+}
+
+.pie-chart-box.hidden {
+    display: none;
+}
+
+.pie-chart-container-box {
+    max-width: 70%;
+    height: 45vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 5em;
+}
+
+.pie-chart-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6em;
+}
+
+.pie-chart-title {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.pie-chart-pie-legend-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8em;
+}
+
+.pie-chart {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20em;
+    text-align: center;
+}
+
+.pie {
+    position: absolute;
+    width: 100%;
+    aspect-ratio: 1;
+    inset: 0;
+    border-radius: 50%;
+    rotate: var(--rotateAngle);
+    background: conic-gradient( var(--pie-color) 0% var(--pie-percent), transparent var(--pie-percent) 100%);
+    animation: drawPie 1.4s ease-in-out 0s 1 forwards;
+}
+
+@property --pie-percent {
+    syntax: "<percentage>";
+    initial-value: 0%;
+    inherits: false;
+}
+
+@keyframes drawPie {
+    from {
+        --pie-percent: 0%;
+    }
+}
+
+.pie-label {
+    position: absolute;
+    top: -2.5rem;
+    left: 11.5rem;
+    color: var(--title-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    rotate: calc(0turn - var(--rotateAngle));
+    z-index: 999;
+}
+
+.pie-value {
+    animation: pieValueCounter 1.4s ease-in-out 0s 1 forwards;
+    counter-set: num var(--pie-value);
+}
+
+.pie-value::after {
+    content: counter(num);
+}
+
+@property --pie-value {
+    syntax: "<integer>";
+    initial-value: 0;
+    inherits: false;
+}
+
+@keyframes pieValueCounter {
+    from {
+        --pie-value: 0;
+    }
+}
+
+.pie-chart-legend {
+    position: absolute;
+    top: 10em;
+    right: -20em;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 1em;
+    width: 12.4em;
+    height: 15em;
+    overflow: auto;
+}
+
+.pie-legend {
+    align-self: flex-start;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1em;
+}
+
+.pie-indicator {
+    --pie-color: var(--title-color);
+    width: 2.4em;
+    height: 1em;
+    border-radius: 1em;
+    background: var(--pie-color);
+}
+
+.pie-name {
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 

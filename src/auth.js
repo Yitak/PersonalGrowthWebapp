@@ -350,6 +350,7 @@ const expandChartViewBox = document.querySelector('.expand-chart-view-box');
 const expandChartViewBoxTitle = document.querySelector('.chart-data-period');
 const moreWeeklyStatisticsButtons = document.querySelectorAll('.more-statistics-button');
 const closeChartViewButton = document.querySelector('.closeChartViewButton');
+const navigatePageButtons = document.querySelectorAll('.navigatePageButton');
 
 var selectedGoalID;
 
@@ -423,7 +424,17 @@ const resetBarElements = function (DEBUG_MODE=false) {
     }
 };
 
-const createGoalsProgressBar = function (barValue, barName) {
+const resetPieElements = function (DEBUG_MODE=false) {
+    const minElementCount = DEBUG_MODE === true ? 2 : 1;
+    const pieChartContainer = document.querySelector('.pie-chart');
+    const pieLegendContainer = document.querySelector('.pie-chart-legend');
+    while (pieChartContainer.childElementCount > minElementCount) {
+        pieChartContainer.removeChild(pieChartContainer.lastElementChild);
+        pieLegendContainer.removeChild(pieLegendContainer.lastElementChild);
+    }
+};
+
+const createGoalsBarChart = function (barValue, barName) {
     const barsContainer = document.querySelector('.bars-container');
     const barTemplate = document.querySelector('.bar-template');
     const barElement = barTemplate.content.cloneNode(true);
@@ -444,6 +455,57 @@ const createGoalsProgressBar = function (barValue, barName) {
     }
     barPercent.style.setProperty('--num', barValue);
     barsContainer.appendChild(barElement);
+};
+
+const createGoalsPieChart = function (goalTypesInfo) {
+    resetPieElements();
+    if (goalTypesInfo != {}) {
+        const pieChartContainer = document.querySelector('.pie-chart');
+        const pieTemplate = document.querySelector('.pie-template');
+        const pieLegendContainer = document.querySelector('.pie-chart-legend');
+        const pieLegendTemplate = document.querySelector('.pie-lengend-template');
+
+        var rotatedAngle = 0;
+        const stringToColor = function (inputString) {
+            let hash = 0;
+            for (let i = 0; i < inputString.length; i++) {
+                hash = inputString.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const cyan = Math.abs((hash * 0.3) % 100);
+            const green = Math.abs((hash * 0.6) % 100);
+            const blue = Math.abs((hash * 0.9) % 100);
+            const color = `rgb(${cyan}%, ${green}%, ${blue}%)`;
+            console.log(hash);
+
+            return color;
+        };
+
+        for (let goalTag in goalTypesInfo) {
+            if (goalTag != "goal_total") {
+                var pieElement = pieTemplate.content.cloneNode(true);
+                var pie = pieElement.querySelector('.pie');
+                var pieValue = pieElement.querySelector('.pie-value');
+
+                var pieLengendElement = pieLegendTemplate.content.cloneNode(true);
+                var pieIndicator = pieLengendElement.querySelector('.pie-indicator');
+                var pieName = pieLengendElement.querySelector('.pie-name');
+
+                var piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(0);
+                var pieColor = stringToColor(goalTag);
+                pie.style.setProperty('--pie-percent', `${piePercentValue}%`);
+                pie.style.setProperty('--rotateAngle', `${rotatedAngle}turn`);
+                pie.style.setProperty('--pie-color', `${pieColor}`);
+                pieValue.style.setProperty('--pie-value', piePercentValue);
+                rotatedAngle += piePercentValue / 100;
+
+                pieName.textContent = goalTag;
+                pieIndicator.style.setProperty('--pie-color', `${pieColor}`);
+
+                pieChartContainer.appendChild(pieElement);
+                pieLegendContainer.appendChild(pieLengendElement);
+            }
+        }
+    }
 };
 
 const createGoalTags = function (goalTagName) {
@@ -728,57 +790,51 @@ const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
 
 const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, viewMode="month") {
     resetBarElements();
-    const yAxisContainer = document.querySelector('.y-axis-container');
-    yAxisContainer.style.visibility = "visible";
     let [day, month, year] = selectedDate.split(/\s+/);
     const goalStatsRef = refD(database);
     get(child(goalStatsRef, `users/${userUID}/dailyGoal/${year}/${month}`)).then((snapshots) => {
         if (snapshots.exists()) {
-            let goalProgressByTagsInfo = {};
+            let
+                goalProgressByTagsInfo = {},
+                goalTypesInfo = { "goal_total": 0 };
             for (let i = 0; i < snapshots.val().length; i++) {
                 if (snapshots.val()[i]) {
                     var snapshot = snapshots.val()[i].goal_list;
                     var snapshotDay = Number(snapshots.val()[i].goal_list_date.split(/\s+/)[0]);
                     for (let j = 0; j < snapshot.length; j++) {
-                        if (viewMode == "month") {
-                            // Monthly Stats
-                            var goalTagMonthly = snapshot[j].goal_tag ? snapshot[j].goal_tag : "Untagged";
-                            var goalCompletionMonthly = snapshot[j].goal_completion ? Number(snapshot[j].goal_completion) : 0;
-                            if (!(goalTagMonthly in goalProgressByTagsInfo)) {
-                                goalProgressByTagsInfo[goalTagMonthly] = { "goal_completion": goalCompletionMonthly, "goal_total": 1 };
+                        // Monthly Stats or Weekly Stats
+                        var getDataCondition = viewMode == "month" ? true : (snapshotDay <= day && snapshotDay >= day - 6);
+                        if (getDataCondition) {
+                            var goalTag = snapshot[j].goal_tag ? snapshot[j].goal_tag : "Untagged";
+                            var goalCompletion = snapshot[j].goal_completion ? Number(snapshot[j].goal_completion) : 0;
+                            if (!(goalTag in goalProgressByTagsInfo)) {
+                                goalProgressByTagsInfo[goalTag] = { "goal_completion": goalCompletion, "goal_total": 1 };
+                                goalTypesInfo[goalTag] = 1;
                             } else {
-                                goalProgressByTagsInfo[goalTagMonthly].goal_completion += goalCompletionMonthly;
-                                goalProgressByTagsInfo[goalTagMonthly].goal_total += 1;
+                                goalProgressByTagsInfo[goalTag].goal_completion += goalCompletion;
+                                goalProgressByTagsInfo[goalTag].goal_total += 1;
+                                goalTypesInfo[goalTag] += 1;
                             }
-                        } else {
-                            // Weekly Stats
-                            if (snapshotDay <= day && snapshotDay >= day - 6) {
-                                var goalTagWeekly = snapshot[j].goal_tag ? snapshot[j].goal_tag : "Untagged";
-                                var goalCompletionWeekly = snapshot[j].goal_completion ? Number(snapshot[j].goal_completion) : 0;
-                                if (!(goalTagWeekly in goalProgressByTagsInfo)) {
-                                    goalProgressByTagsInfo[goalTagWeekly] = { "goal_completion": goalCompletionWeekly, "goal_total": 1 };
-                                } else {
-                                    goalProgressByTagsInfo[goalTagWeekly].goal_completion += goalCompletionWeekly;
-                                    goalProgressByTagsInfo[goalTagWeekly].goal_total += 1;
-                                }
-                            }
+                            goalTypesInfo["goal_total"] += 1;
                         }
                     }
                 }
             }
+            // Creat bar chart
             if (goalProgressByTagsInfo != {}) {
                 Object.keys(goalProgressByTagsInfo).forEach((goalTag) => {
                     var goalValue = (goalProgressByTagsInfo[goalTag].goal_completion / goalProgressByTagsInfo[goalTag].goal_total * 100).toFixed(0);
-                    createGoalsProgressBar(goalValue, goalTag);
+                    createGoalsBarChart(goalValue, goalTag);
                 });
-            } else {
-                console.log("No stored tags data.");
             }
+            // Create pie chart
+            createGoalsPieChart(goalTypesInfo);
         } else {
-            console.log("No stored goals data.");
+            console.log("uUUUUU");
         }
     });
 };
+
 
 // WRITE
 const UPDATE_DAILY_GOALS_TO_DATABASE = function (userUID) {
@@ -890,3 +946,33 @@ const CONFIRM_ACTION_CONSENT = function (confirmQuestion) {
 cancelGoalEditButton.addEventListener("click", () => { toggleGoalEditBox(false, ""); });
 
 closeChartViewButton.addEventListener("click", () => { toggleMoreDetailedStatisticsView(false); });
+
+navigatePageButtons.forEach((navigatePageButton) => {
+    const chartBox = document.querySelector('.chart-box');
+    const pieChartBox = document.querySelector('.pie-chart-box');
+    navigatePageButton.addEventListener("click", () => {
+        navigatePageButtons.forEach((navigatePageButton) => { navigatePageButton.disabled = false; });
+        navigatePageButton.disabled = true;
+        if (navigatePageButton.classList.contains("pageLeftButton")) {
+            // To Page Before
+            pieChartBox.style.opacity = 0;
+            setTimeout(() => {
+                pieChartBox.classList.add("hidden");
+                chartBox.classList.remove("hidden");
+            }, 250);
+            setTimeout(() => {
+                chartBox.style.opacity = 1;
+            }, 260);
+        } else {
+            // To Page After
+            chartBox.style.opacity = 0;            
+            setTimeout(() => {
+                chartBox.classList.add("hidden");
+                pieChartBox.classList.remove("hidden");
+            }, 250);
+            setTimeout(() => {
+                pieChartBox.style.opacity = 1;
+            }, 260);
+        }
+    });
+});

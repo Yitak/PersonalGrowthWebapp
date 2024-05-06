@@ -59,8 +59,15 @@
     <!--------------- Expand Chart View --------------->
     <div class="expand-chart-view-box hidden">
         <div class="expand-chart-view-container">
-            <button type="button" class="closeChartViewButton"><i class='bx bx-x'></i></button>
+            <div class="expand-chart-header-buttons-container">
+                <button type="button" class="closeChartViewButton"><i class='bx bx-x'></i></button>
+                <div class="navigate-page-buttons-container">
+                    <button type="button" class="navigatePageButton pageLeftButton" disabled><i class='bx bxs-chevron-left'></i></button>
+                    <button type="button" class="navigatePageButton pageRightButton"><i class='bx bxs-chevron-right'></i></button>
+                </div>
+            </div>
             <h1><span class="chart-data-period">Weekly</span> Goals Statistics</h1>
+            <!-- Bar Chart -->
             <div class="chart-box">
                 <div class="y-axis-container">
                     <p class="y-axis-title">Progress</p>
@@ -76,6 +83,32 @@
                             <div class="x-label-container"><div class="x-label"></div></div>
                         </div>
                     </template>
+                </div>
+            </div>
+            <!-- Pie Chart -->
+            <div class="pie-chart-box hidden">
+                <div class="pie-chart-container-box">
+                    <div class="pie-chart-container">
+                        <p class="pie-chart-title">Assigned Goal Types Distribution</p>
+                        <div class="pie-chart-pie-legend-container">
+                            <div class="pie-chart">
+                                <template class="pie-template">
+                                    <div class="pie" style="--pie-percent:25%; --pie-color:#0b5a40; --rotateAngle: 0turn"><p class="pie-label"><span class="pie-value" style="--pie-value:25;"></span>%</p></div>
+                                </template>
+                                <!-- <div class="pie" style="--pie-percent:25%; --pie-color:#0b5a40; --rotateAngle: 0turn"><p class="pie-label"><span class="pie-value" style="--pie-value:25;"></span>%</p></div>
+                                <div class="pie" style="--pie-percent:25%; --pie-color:#0d6f4e; --rotateAngle: 0.25turn"><p class="pie-label"><span class="pie-value" style="--pie-value:25;"></span>%</p></div>
+                                <div class="pie" style="--pie-percent:25%; --pie-color:#137f5b; --rotateAngle: 0.5turn"><p class="pie-label"><span class="pie-value" style="--pie-value:25;"></span>%</p></div>
+                                <div class="pie" style="--pie-percent:11%; --pie-color:#0dab93; --rotateAngle: 0.75turn"><p class="pie-label"><span class="pie-value" style="--pie-value:11;"></span>%</p></div>
+                                <div class="pie" style="--pie-percent:8%; --pie-color:#23c9ad; --rotateAngle: 0.86turn"><p class="pie-label"><span class="pie-value" style="--pie-value:8;"></span>%</p></div>
+                                <div class="pie" style="--pie-percent:6%; --pie-color:#5de3cc; --rotateAngle: 0.94turn"><p class="pie-label"><span class="pie-value" style="--pie-value:6;"></span>%</p></div> -->
+                            </div>
+                            <div class="pie-chart-legend">
+                                <template class="pie-lengend-template">
+                                    <div class="pie-legend"><div class="pie-indicator"></div><p class="pie-name"></p></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>                    
                 </div>
             </div>
         </div>
