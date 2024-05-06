@@ -25,7 +25,7 @@ onAuthStateChanged(auth, (user) => {
         SignInSignUpBox.style.display = "none";
         memberPageBox.style.display = "flex";
 
-        const userUID = user.uid;
+        var userUID = user.uid;
         useruid = userUID;
 
         READ_USER_SETTINGS(userUID);
@@ -171,6 +171,7 @@ const SIGNUP = function () {
 const SIGNOUT = function () {
     signOut(auth)
         .then(() => {
+            localStorage.clear();
             alert('Signed out successfully.');
         })
         .catch((error) => {
@@ -732,13 +733,12 @@ const READ_GOALS_FROM_DATABASE = function (userUID) {
             for (let snapshotDict of snapshotList) {
                 CREATE_NEW_GOAL(userUID, snapshotDict.goal_name, snapshotDict.goal_completion, snapshotDict.goal_date, snapshotDict.goal_progress, snapshotDict.goal_progress_total, snapshotDict.goal_tag);
             };
-
             const dailyGoalInfoData = { "goal_list": snapshotList, "goal_list_date": todayDate };
             update(refD(database, `users/${userUID}/dailyGoal/${currentYear}/${monthsShort[currentMonth]}/${currentDay}`), dailyGoalInfoData)
                 .then(() => { })
                 .catch((error) => {
                     alert(`Please try again. Error: ${error.message}`);
-                });
+                });            
         } else {
             console.log("No stored goals data.");
         }
@@ -769,10 +769,12 @@ const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
             var totalGoalsWeeklyCompletion = 0;
             var totalGoalsMonthly = 0;
             var totalGoalsMonthlyCompletion = 0;
-            for (let i = 0; i < snapshots.val().length; i++) {
-                if (snapshots.val()[i]) {
-                    var snapshot = snapshots.val()[i].goal_list;
-                    var snapshotDay = Number(snapshots.val()[i].goal_list_date.split(/\s+/)[0]);
+            var snapshotsLength = snapshots.val().length ? snapshots.val().length : 1;
+            for (let i = 0; i < snapshotsLength; i++) {
+                var index = snapshots.val().length ? i : day;
+                if (snapshots.val()[index]) {
+                    var snapshot = snapshots.val()[index].goal_list;
+                    var snapshotDay = Number(snapshots.val()[index].goal_list_date.split(/\s+/)[0]);
                     for (let j = 0; j < snapshot.length; j++) {
                         // Weekly Stats
                         if (snapshotDay <= day && snapshotDay >= day - 6) {
@@ -801,10 +803,12 @@ const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, view
             let
                 goalProgressByTagsInfo = {},
                 goalTypesInfo = { "goal_total": 0 };
-            for (let i = 0; i < snapshots.val().length; i++) {
-                if (snapshots.val()[i]) {
-                    var snapshot = snapshots.val()[i].goal_list;
-                    var snapshotDay = Number(snapshots.val()[i].goal_list_date.split(/\s+/)[0]);
+            var snapshotsLength = snapshots.val().length ? snapshots.val().length : 1;
+            for (let i = 0; i < snapshotsLength; i++) {
+                var index = snapshots.val().length ? i : day;
+                if (snapshots.val()[index]) {
+                    var snapshot = snapshots.val()[index].goal_list;
+                    var snapshotDay = Number(snapshots.val()[index].goal_list_date.split(/\s+/)[0]);
                     for (let j = 0; j < snapshot.length; j++) {
                         // Monthly Stats or Weekly Stats
                         var getDataCondition = viewMode == "month" ? true : (snapshotDay <= day && snapshotDay >= day - 6);
@@ -823,7 +827,7 @@ const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, view
                         }
                     }
                 }
-            }
+            }            
             // Creat bar chart
             Object.keys(goalProgressByTagsInfo).forEach((goalTag) => {
                 var goalValue = (goalProgressByTagsInfo[goalTag].goal_completion / goalProgressByTagsInfo[goalTag].goal_total * 100).toFixed(0);
@@ -832,7 +836,7 @@ const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, view
             // Create pie chart
             createGoalsPieChart(goalTypesInfo);
         } else {
-            console.log("uUUUUU");
+            
         }
     });
 };
@@ -932,12 +936,23 @@ const WRITE_GOAL_TO_DATABASE = function (userUID, goalName, goalTag) {
 
 // DELETION
 const REMOVE_GOAL_FROM_DATABASE = function (userUID, goalID) {
+    let [day, month, year] = todayDate.split(/\s+/);
     const deleteGoalTask = refD(database, `users/${userUID}/goals/${goalID}`);
     if (goalID != "") {
         remove(deleteGoalTask)
             .then(() => { READ_GOALS_FROM_DATABASE(userUID); UPDATE_DAILY_GOALS_TO_DATABASE(userUID); toggleGoalEditBox(false, ""); })
             .catch((error) => { alert(error.message); });
+        get(child(refD(database), `users/${userUID}/dailyGoal/${year}/${month}/${day}`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    if (!snapshot.val().length) {
+                        const deleteGoalTask = refD(database, `users/${userUID}/dailyGoal/${year}/${month}/${day}`);
+                        remove(deleteGoalTask);
+                    }
+                }
+            });
     }
+
 };
 
 const CONFIRM_ACTION_CONSENT = function (confirmQuestion) {

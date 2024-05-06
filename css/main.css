@@ -1043,7 +1043,7 @@
 }
 
 .progress-percent {
-    --num: 50;
+    --num: 0;
     animation: counter 1.4s ease-in-out 0s 1 forwards;
     counter-set: num var(--num);
 }
@@ -1056,7 +1056,7 @@
 .circular-progress {
     width: 5.8em;
     height: 5.8em;
-    --progress: 50;
+    --progress: 0;
     --size: 250px;
     --half-size: calc(var(--size) / 2);
     --stroke-width: 2.4rem;
