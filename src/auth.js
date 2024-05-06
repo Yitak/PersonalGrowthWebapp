@@ -1,7 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, setPersistence, browserSessionPersistence, inMemoryPersistence, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js';
 import { getDatabase, ref as refD, set, child, get, update, remove } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js';
-import { getStorage, ref as refS, uploadBytes, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js'
+// import { getStorage, ref as refS, uploadBytes, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js'
 
 
 const firebaseConfig = {
@@ -476,7 +476,6 @@ const createGoalsPieChart = function (goalTypesInfo) {
             const green = Math.abs((hash * 0.6) % 100);
             const blue = Math.abs((hash * 0.9) % 100);
             const color = `rgb(${cyan}%, ${green}%, ${blue}%)`;
-            console.log(hash);
 
             return color;
         };
