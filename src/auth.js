@@ -482,20 +482,24 @@ const createGoalsPieChart = function (goalTypesInfo) {
 
         for (let goalTag in goalTypesInfo) {
             if (goalTag != "goal_total") {
-                var pieElement = pieTemplate.content.cloneNode(true);
-                var pie = pieElement.querySelector('.pie');
-                var pieValue = pieElement.querySelector('.pie-value');
+                const pieElement = pieTemplate.content.cloneNode(true);
+                const pie = pieElement.querySelector('.pie');
+                const pieLabel = pieElement.querySelector('.pie-label');
+                const pieValue = pieElement.querySelector('.pie-value');
 
-                var pieLengendElement = pieLegendTemplate.content.cloneNode(true);
-                var pieIndicator = pieLengendElement.querySelector('.pie-indicator');
-                var pieName = pieLengendElement.querySelector('.pie-name');
+                const pieLengendElement = pieLegendTemplate.content.cloneNode(true);
+                const pieLegend = pieLengendElement.querySelector('.pie-legend');
+                const pieIndicator = pieLengendElement.querySelector('.pie-indicator');
+                const pieName = pieLengendElement.querySelector('.pie-name');
 
-                var piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(0);
-                var pieColor = stringToColor(goalTag);
+                const piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(0);
+                const pieColor = stringToColor(goalTag);
                 pie.style.setProperty('--pie-percent', `${piePercentValue}%`);
                 pie.style.setProperty('--rotateAngle', `${rotatedAngle}turn`);
                 pie.style.setProperty('--pie-color', `${pieColor}`);
                 pieValue.style.setProperty('--pie-value', piePercentValue);
+                pieLegend.addEventListener("mouseover", () => { pieLabel.classList.add("show"); });
+                pieLegend.addEventListener("mouseout", () => { setTimeout(() => { pieLabel.classList.remove("show"); }, 1000); });
                 rotatedAngle += piePercentValue / 100;
 
                 pieName.textContent = goalTag;
@@ -821,12 +825,10 @@ const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, view
                 }
             }
             // Creat bar chart
-            if (goalProgressByTagsInfo != {}) {
-                Object.keys(goalProgressByTagsInfo).forEach((goalTag) => {
-                    var goalValue = (goalProgressByTagsInfo[goalTag].goal_completion / goalProgressByTagsInfo[goalTag].goal_total * 100).toFixed(0);
-                    createGoalsBarChart(goalValue, goalTag);
-                });
-            }
+            Object.keys(goalProgressByTagsInfo).forEach((goalTag) => {
+                var goalValue = (goalProgressByTagsInfo[goalTag].goal_completion / goalProgressByTagsInfo[goalTag].goal_total * 100).toFixed(0);
+                createGoalsBarChart(goalValue, goalTag);
+            });
             // Create pie chart
             createGoalsPieChart(goalTypesInfo);
         } else {
