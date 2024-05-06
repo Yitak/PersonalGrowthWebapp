@@ -17,7 +17,6 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const database = getDatabase(firebaseApp);
-const storage = getStorage(firebaseApp);
 
 // Firebase connection
 onAuthStateChanged(auth, (user) => {
@@ -172,6 +171,7 @@ const SIGNOUT = function () {
     signOut(auth)
         .then(() => {
             localStorage.clear();
+            location.reload();
             alert('Signed out successfully.');
         })
         .catch((error) => {
