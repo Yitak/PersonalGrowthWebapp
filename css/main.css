@@ -397,8 +397,8 @@
 .expand-chart-view-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 6em;
+    justify-content: flex-start;
+    gap: 3em;
     background: rgba(191, 197, 196, 0.9);
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
     width: 80%;
@@ -411,6 +411,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1em 1.5em 0 1.5em;
 }
 
 .closeChartViewButton {
@@ -424,7 +425,7 @@
     border: none;
     outline: none;
     background: rgba(129, 171, 165, 0.8);
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    /* box-shadow: 0 0 30px rgba(0, 0, 0, 0.05); */
     color: var(--title-color);
     padding: 1rem;
     font-size: 3rem;
@@ -453,7 +454,7 @@
 .navigatePageButton i {
     border: none;
     outline: none;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    /* box-shadow: 0 0 30px rgba(0, 0, 0, 0.15); */
     padding: 1rem;
     font-size: 1.8rem;
     font-weight: 900;
@@ -628,7 +629,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: 5em;
+    /* gap: 2em; */
 }
 
 .pie-chart-container {
@@ -661,6 +662,9 @@
 
 .pie {
     position: absolute;
+    top: 0;
+    left: 0;
+    transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
     width: 100%;
     aspect-ratio: 1;
     inset: 0;
@@ -683,20 +687,16 @@
 }
 
 .pie-label {
-    opacity: 0;
+    opacity: 1;
     position: relative;
     top: -3rem;
-    left: 1.5rem;
+    /* left: 10rem; */
     color: var(--title-color);
     font-size: 1.4rem;
     font-weight: 600;
     rotate: calc(0turn - var(--rotateAngle));
-    z-index: 999;
+    z-index: 9999;
     transition: opacity 0.25s ease-in-out;
-}
-
-.pie-label.show {
-    opacity: 1;
 }
 
 .pie-value {
@@ -742,9 +742,11 @@
     border: none;
     border-radius: 2rem;
     padding: 0.2rem 2rem 0.2rem 2rem;
+    transition: all 0.35s ease-in-out;
+    cursor: pointer;
 }
 
-.pie-legend:hover {
+.pie-legend:hover, .pie-legend.selected {
     background: rgba(106, 156, 141, 0.2);
 }
 

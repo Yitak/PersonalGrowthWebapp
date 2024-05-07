@@ -467,7 +467,7 @@ const createGoalsPieChart = function (goalTypesInfo) {
         const pieLegendTemplate = document.querySelector('.pie-lengend-template');
 
         var rotatedAngle = 0;
-        const stringToColor = function (inputString) {
+        const stringToColor = function (inputString, colorAlpha) {
             let hash = 0;
             for (let i = 0; i < inputString.length; i++) {
                 hash = inputString.charCodeAt(i) + ((hash << 5) - hash);
@@ -475,35 +475,88 @@ const createGoalsPieChart = function (goalTypesInfo) {
             const r = Math.abs((hash * 0) % 100);
             const g = Math.abs((hash * 0.7) % 100);
             const b = Math.abs((hash * 0.8) % 100);
-            const color = `rgb(${r}%, ${g}%, ${b}%)`;
-
+            const color = `rgba(${r}%, ${g}%, ${b}%, ${colorAlpha})`;
             return color;
         };
 
+        var sum = 0;
         for (let goalTag in goalTypesInfo) {
             if (goalTag != "goal_total") {
                 const pieElement = pieTemplate.content.cloneNode(true);
                 const pie = pieElement.querySelector('.pie');
-                const pieLabel = pieElement.querySelector('.pie-label');
                 const pieValue = pieElement.querySelector('.pie-value');
+                const pieLabel = pieElement.querySelector('.pie-label');
 
                 const pieLengendElement = pieLegendTemplate.content.cloneNode(true);
                 const pieLegend = pieLengendElement.querySelector('.pie-legend');
                 const pieIndicator = pieLengendElement.querySelector('.pie-indicator');
                 const pieName = pieLengendElement.querySelector('.pie-name');
 
-                const piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(0);
-                const pieColor = stringToColor(goalTag);
-                pie.style.setProperty('--pie-percent', `${piePercentValue}%`);
+                // Update text, numbers & colors
+                var piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(2);
+                var piePercentValueRounded = (sum + Math.round(piePercentValue)) <= 100 ? Math.round(piePercentValue) : (100 - sum);
+                const colorAlpha = 0.65;
+                const pieColor = stringToColor(goalTag, colorAlpha);
+                pieName.textContent = goalTag;
+                pie.style.setProperty('--pie-percent', `${piePercentValueRounded}%`);
                 pie.style.setProperty('--rotateAngle', `${rotatedAngle}turn`);
                 pie.style.setProperty('--pie-color', `${pieColor}`);
-                pieValue.style.setProperty('--pie-value', piePercentValue);
-                pieLegend.addEventListener("mouseover", () => { pieLabel.classList.add("show"); });
-                pieLegend.addEventListener("mouseout", () => { setTimeout(() => { pieLabel.classList.remove("show"); }, 1000); });
-                rotatedAngle += piePercentValue / 100;
-
-                pieName.textContent = goalTag;
+                pieValue.style.setProperty('--pie-value', piePercentValueRounded);
                 pieIndicator.style.setProperty('--pie-color', `${pieColor}`);
+
+                // Position pie labels correctly
+                var pieRadius = 10;
+                var pieValueRadialOffset = 2.5;
+                var pieValueOffsetY = pieRadius - (pieValueRadialOffset + pieRadius) * Math.cos(2 * Math.PI * piePercentValue / 200);
+                var pieValueOffsetX = (pieValueRadialOffset + pieRadius) * Math.sin(2 * Math.PI * piePercentValue / 200);
+                pieLabel.style.top = `${pieValueOffsetY}rem`;
+                pieLabel.style.left = `${pieValueOffsetX}rem`;
+
+                console.log(pieValueOffsetX, pieValueOffsetY);
+
+                // Hover & click on legends to toggle pie focus mode
+                var pieColorCopy;
+                var togglePie = function (pie, isToggled) {
+                    pieColorCopy = pie.style.getPropertyValue('--pie-color');
+                    if (isToggled) {
+                        var rotatedAngleCopy = Number(pie.style.getPropertyValue('--rotateAngle').split("turn")[0]);
+                        var piePercentValueCopy = Number(pie.style.getPropertyValue('--pie-percent').split("%")[0]);
+                        const pieTransformRadialOffset = 2.5;
+                        var pieTransformAngle = Math.PI * 0.5 + 2 * Math.PI * (rotatedAngleCopy + piePercentValueCopy / 200);
+                        var transformedX = - pieTransformRadialOffset * Math.sin(pieTransformAngle);
+                        var transformedY = - pieTransformRadialOffset * Math.cos(pieTransformAngle);
+                        pie.style.top = `${transformedX}rem`;
+                        pie.style.left = `${transformedY}rem`;
+                        pie.style.setProperty('--pie-color', pieColorCopy.replace(`${colorAlpha})`, "1)"));
+                    } else {
+                        pie.style.setProperty('--pie-color', pieColorCopy.replace("1)", `${colorAlpha})`));
+                        pie.style.top = "0";
+                        pie.style.left = `0`;
+                    }
+                };
+                pieLegend.addEventListener("mouseover", () => {
+                    if (!pieLegend.classList.contains("selected")) {
+                        togglePie(pie, true);
+                    }
+                });
+                pieLegend.addEventListener("click", () => {
+                    if (!pieLegend.classList.contains("selected")) {
+                        pieLegend.classList.add("selected");
+                        togglePie(pie, true);
+                    } else {
+                        pieLegend.classList.remove("selected");
+                        togglePie(pie, false);
+                    }
+                });
+                pieLegend.addEventListener("mouseout", () => {
+                    if (!pieLegend.classList.contains("selected")) {
+                        togglePie(pie, false);
+                    }
+                });
+
+                // Update rotate angle & sum total
+                rotatedAngle += piePercentValueRounded / 100;
+                sum += piePercentValueRounded;
 
                 pieChartContainer.appendChild(pieElement);
                 pieLegendContainer.appendChild(pieLengendElement);
