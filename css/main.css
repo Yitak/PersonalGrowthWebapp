@@ -398,11 +398,11 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    gap: 3em;
+    gap: 5em;
     background: rgba(191, 197, 196, 0.9);
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
     width: 80%;
-    height: 75%;
+    height: 85%;
     border: none;
     border-radius: 4rem;
 }
