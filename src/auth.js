@@ -472,10 +472,10 @@ const createGoalsPieChart = function (goalTypesInfo) {
             for (let i = 0; i < inputString.length; i++) {
                 hash = inputString.charCodeAt(i) + ((hash << 5) - hash);
             }
-            const cyan = Math.abs((hash * 0.3) % 100);
-            const green = Math.abs((hash * 0.6) % 100);
-            const blue = Math.abs((hash * 0.9) % 100);
-            const color = `rgb(${cyan}%, ${green}%, ${blue}%)`;
+            const r = Math.abs((hash * 0) % 100);
+            const g = Math.abs((hash * 0.7) % 100);
+            const b = Math.abs((hash * 0.8) % 100);
+            const color = `rgb(${r}%, ${g}%, ${b}%)`;
 
             return color;
         };
