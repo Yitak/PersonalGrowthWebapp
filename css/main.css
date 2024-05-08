@@ -534,7 +534,7 @@
     max-width: 70%;
     height: 45vh;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     overflow-x: auto;
     border-top: dotted 0.2rem var(--title-color);
 }

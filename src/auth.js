@@ -480,6 +480,7 @@ const createGoalsPieChart = function (goalTypesInfo) {
         };
 
         var sum = 0;
+        var counter = 1;
         for (let goalTag in goalTypesInfo) {
             if (goalTag != "goal_total") {
                 const pieElement = pieTemplate.content.cloneNode(true);
@@ -493,26 +494,24 @@ const createGoalsPieChart = function (goalTypesInfo) {
                 const pieName = pieLengendElement.querySelector('.pie-name');
 
                 // Update text, numbers & colors
-                var piePercentValue = (goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100).toFixed(2);
-                var piePercentValueRounded = (sum + Math.round(piePercentValue)) <= 100 ? Math.round(piePercentValue) : (100 - sum);
+                var piePercentValue = goalTypesInfo[goalTag] / goalTypesInfo.goal_total * 100;
+                var piePercentValueRounded = (counter < (Object.keys(goalTypesInfo).length - 1)) ? Math.round(piePercentValue) : (100 - sum);
                 const colorAlpha = 0.65;
                 const pieColor = stringToColor(goalTag, colorAlpha);
-                pieName.textContent = goalTag;
-                pie.style.setProperty('--pie-percent', `${piePercentValueRounded}%`);
+                pie.style.setProperty('--pie-percent', `${piePercentValue}%`);
                 pie.style.setProperty('--rotateAngle', `${rotatedAngle}turn`);
                 pie.style.setProperty('--pie-color', `${pieColor}`);
                 pieValue.style.setProperty('--pie-value', piePercentValueRounded);
+                pieName.textContent = goalTag;
                 pieIndicator.style.setProperty('--pie-color', `${pieColor}`);
 
                 // Position pie labels correctly
                 var pieRadius = 10;
-                var pieValueRadialOffset = 2.5;
+                var pieValueRadialOffset = 3;
                 var pieValueOffsetY = pieRadius - (pieValueRadialOffset + pieRadius) * Math.cos(2 * Math.PI * piePercentValue / 200);
                 var pieValueOffsetX = (pieValueRadialOffset + pieRadius) * Math.sin(2 * Math.PI * piePercentValue / 200);
                 pieLabel.style.top = `${pieValueOffsetY}rem`;
                 pieLabel.style.left = `${pieValueOffsetX}rem`;
-
-                console.log(pieValueOffsetX, pieValueOffsetY);
 
                 // Hover & click on legends to toggle pie focus mode
                 var pieColorCopy;
@@ -555,8 +554,9 @@ const createGoalsPieChart = function (goalTypesInfo) {
                 });
 
                 // Update rotate angle & sum total
-                rotatedAngle += piePercentValueRounded / 100;
+                rotatedAngle += piePercentValue / 100;
                 sum += piePercentValueRounded;
+                counter += 1;
 
                 pieChartContainer.appendChild(pieElement);
                 pieLegendContainer.appendChild(pieLengendElement);
