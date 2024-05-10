@@ -459,7 +459,6 @@ const createGoalsBarChart = function (barValue, barName) {
 };
 
 const createGoalsPieChart = function (goalTypesInfo) {
-    resetPieElements();
     if (goalTypesInfo != {}) {
         const pieChartContainer = document.querySelector('.pie-chart');
         const pieTemplate = document.querySelector('.pie-template');
@@ -848,6 +847,7 @@ const GET_GOALS_STATISTICS = function (userUID, selectedDate) {
 
 const GET_GOALS_MORE_DETAILED_STATISTICS = function (userUID, selectedDate, viewMode="month") {
     resetBarElements();
+    resetPieElements();
     let [day, month, year] = selectedDate.split(/\s+/);
     const goalStatsRef = refD(database);
     get(child(goalStatsRef, `users/${userUID}/dailyGoal/${year}/${month}`)).then((snapshots) => {
