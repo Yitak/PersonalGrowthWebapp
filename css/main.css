@@ -1,0 +1,1396 @@
+:root {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300;
+    font-size: 1.5vmin;
+    color: #004b3e;
+    --title-color: #002720;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+
+
+/* LOGIN / SIGNUP AREA */
+.before-auth-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.1);
+    width: 100vw;
+    height: 100vh;
+}
+
+.before-auth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 80%;
+    height: 80%;
+    background: rgba(156, 255, 237, 0.1);
+    border: none;
+    border-radius: 3rem;
+}
+
+.before-auth-container h1 {
+    text-align: center;
+    font-size: 3.5rem;
+    font-weight: 400;
+}
+
+.signin-signup-container {
+    margin-top: 4em;
+    display: flex;
+    justify-content: center;
+    gap: 4em;
+}
+
+.signin-signup-container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+.signin-signup-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;
+    gap: 1.4em;
+    background: rgba(106, 156, 141, 0.1);
+    padding: 1em 1.2em 2em 1.2em;
+    border: none;
+    border-radius: 3rem;
+}
+
+.input-box {
+    align-self: center;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 80%;
+}
+
+.input-box p {
+    width: 30%;
+    font-size: 1.2rem;
+}
+
+.input-field {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.2rem;
+    width: 70%;
+    height: 2.4rem;
+    background: rgba(123, 123, 123, 0.25);
+    border: none;
+    border-radius: 2.5rem;
+    padding-inline: 1.2rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.input-field:hover, .input-field:focus {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+::-webkit-input-placeholder {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.button-container {
+    margin-top: 1em;
+    display: flex;
+    justify-content: center;
+}
+
+.submit-button {
+    width: 30%;
+    height: 3rem;
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    outline: none;
+    border: none;
+    border-radius: 2.5rem;
+    background: rgba(198, 198, 198, 0.65);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-button:hover {
+    background: rgba(108, 108, 108, 0.45);
+}
+
+
+
+
+/* Popups */
+.goal-edit-box {
+    visibility: hidden;
+    opacity: 0;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease-in-out;
+    z-index: 999;
+}
+
+.goal-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3em;
+    background: rgba(191, 197, 196, 0.9);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    width: 60%;
+    /* height: 55%; */
+    border: none;
+    border-radius: 4rem;
+}
+
+.goal-edit-container h1 {
+    margin-top: 1em;
+    text-align: center;
+    font-size: 4rem;
+    font-weight: 200;
+}
+
+.goal-edit-input-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-inline: 6%;
+}
+
+.goal-edit-input-box p {
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+.custom-goal-progress-input-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 55%;
+}
+
+.goal-edit-field {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.2rem;
+    width: 55%;
+    height: 6rem;
+    background: rgba(123, 123, 123, 0.25);
+    border: none;
+    border-radius: 3rem;
+    padding-inline: 2rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.goal-edit-field:hover, .goal-edit-field:focus {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+.goal-tags-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.goal-tags-container {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    width: 55%;
+    gap: 1em;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-inline: 6%;
+    border-right: solid 2px var(--title-color);
+}
+
+.goal-tag {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: rgba(123, 123, 123, 0.25);
+    padding: 0.6em 1.6em 0.6em 1.6em;
+    border: none;
+    outline: none;
+    border-radius: 2rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.goal-tag:hover {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+.goal-edit-custom-field {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.2rem;
+    width: 42%;
+    height: 6rem;
+    background: rgba(123, 123, 123, 0.25);
+    border: none;
+    border-radius: 3rem;
+    padding-inline: 2rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.goal-edit-custom-field:hover, .goal-edit-custom-field:focus {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+.goal-edit-control-container {
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3em;
+    margin-bottom: 4.5em;
+}
+
+.popupControlButtons {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.2rem;
+    padding: 0.4em 1.5em 0.4em 1.5em;
+    outline: none;
+    border: none;
+    border-radius: 3rem;
+    background: rgba(217, 217, 217, 0.65);
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+}
+
+.saveGoalEditButton:hover {
+    box-shadow: inset 8em 0 0 0 rgba(148, 251, 144, 0.9);
+}
+
+.cancelGoalEditButton:hover {
+    box-shadow: inset 8em 0 0 0 rgba(251, 144, 144, 0.9);
+}
+
+.removeGoalButton:hover {
+    box-shadow: inset 8em 0 0 0 rgba(82, 94, 90, 0.9);
+}
+
+.goal-edit-box.creation-mode .removeGoalButton {
+    display: none;
+}
+
+.goal-edit-box.creation-mode .goal-edit-input-box.goal-progress {
+    display: none;
+}
+
+.user-settings-box {
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease-in-out;
+    z-index: 999;
+}
+
+.user-settings-box.hidden {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.user-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5em;
+    background: rgba(191, 197, 196, 0.9);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    width: 60%;
+    /* height: 55%; */
+    border: none;
+    border-radius: 4rem;
+}
+
+.user-settings-container h1 {
+    margin-inline: 1em;
+    margin-top: 1em;
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 200;
+}
+
+.username-field {
+    text-align: center;
+    align-self: center;
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.2rem;
+    width: 75%;
+    height: 6rem;
+    background: rgba(123, 123, 123, 0.25);
+    border: none;
+    border-radius: 3rem;
+    padding-inline: 2rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.username-field:hover, .username-field:focus {
+    background: rgba(177, 177, 177, 0.25);
+}
+
+.user-settings-control-container {
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3em;
+    margin-bottom: 4.5em;
+}
+
+.saveUserSettingsButton:hover {
+    box-shadow: inset 8em 0 0 0 rgba(148, 251, 144, 0.9);
+}
+
+.cancelUserSettingsButton:hover {
+    box-shadow: inset 8em 0 0 0 rgba(251, 144, 144, 0.9);
+}
+
+.expand-chart-view-box {
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease-in-out;
+    z-index: 999;
+}
+
+.expand-chart-view-box.hidden {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.expand-chart-view-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5em;
+    background: rgba(191, 197, 196, 0.9);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    width: 80%;
+    height: 85%;
+    border: none;
+    border-radius: 4rem;
+}
+
+.expand-chart-header-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1em 1.5em 0 1.5em;
+}
+
+.closeChartViewButton {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+}
+
+.closeChartViewButton i {
+    border: none;
+    outline: none;
+    background: rgba(129, 171, 165, 0.8);
+    /* box-shadow: 0 0 30px rgba(0, 0, 0, 0.05); */
+    color: var(--title-color);
+    padding: 1rem;
+    font-size: 3rem;
+    border-radius: 50%;
+    transition: all 0.25s ease-in-out;
+}
+
+.closeChartViewButton i:hover {
+    background: rgba(135, 197, 187, 0.8);
+}
+
+.navigate-page-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+}
+
+.navigatePageButton {
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+}
+
+.navigatePageButton i {
+    border: none;
+    outline: none;
+    /* box-shadow: 0 0 30px rgba(0, 0, 0, 0.15); */
+    padding: 1rem;
+    font-size: 1.8rem;
+    font-weight: 900;
+    border-radius: 50%;
+    transition: all 0.25s ease-in-out;
+}
+
+.navigatePageButton:enabled i {
+    background: rgba(129, 171, 165, 0.8);
+    color: var(--title-color);
+}
+
+.navigatePageButton:disabled {
+    cursor: default;
+}
+
+.navigatePageButton:disabled i {
+    background: rgba(129, 171, 165, 0.45);
+    color: rgba(52, 68, 65, 0.4);
+}
+
+.navigatePageButton:disabled i:hover {
+    background: rgba(129, 171, 165, 0.45);
+}
+
+.navigatePageButton i:hover {
+    background: rgba(135, 197, 187, 0.8);
+}
+
+.expand-chart-view-container h1 {
+    align-self: center;
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: var(--title-color);
+}
+
+.chart-box {
+    opacity: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2em;
+    margin-bottom: 5em;
+    transition: all 0.25s ease-in-out;
+}
+
+.chart-box.hidden {
+    display: none;
+}
+
+.y-axis-container {
+    position: relative;
+    top: -14%;
+}
+
+.y-axis-title {
+    margin-bottom: 1em;
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+.y-ticks-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 38vh;
+}
+
+.y-limit {
+    text-align: end;
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+.bars-container {
+    position: relative;
+    max-width: 70%;
+    height: 45vh;
+    display: flex;
+    justify-content: flex-start;
+    overflow-x: auto;
+    border-top: dotted 0.2rem var(--title-color);
+}
+
+.bar-container {
+    width: 100%;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    border-bottom: solid 0.15rem var(--title-color);
+}
+
+.bar {
+    align-self: flex-end;
+    display: flex;
+    justify-content: center;
+    width: 3.5em;
+    height: 50%;
+    background: #007575;
+    transform-origin: bottom;
+    animation: revealing-bar 1.4s ease-in-out 0s 1 forwards;
+}
+
+.bar-value {
+    position: relative;
+    top: -1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.bar-percent {
+    --num: 50;
+    animation: counter 1.4s ease-in-out 0s 1 forwards;
+    counter-set: num var(--num);
+}
+
+.bar-percent::after {
+    content: counter(num);
+}
+
+@property --num {
+    syntax: "<integer>";
+    initial-value: 0;
+    inherits: false;
+}
+
+@keyframes counter {
+    from {
+        --num: 0;
+    }
+}
+
+@keyframes revealing-bar {
+    0% { transform: scaleY( 0 );}
+}
+
+.x-label-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-inline: 1em;
+    margin-top: 0.3em;
+}
+
+.x-label {
+    text-align: center;
+    width: 6.2em;
+    height: 3.1em;
+    font-size: 1.4rem;
+    font-weight: 400;
+    /* background: red; */
+    overflow-y: auto;
+}
+
+.pie-chart-box {
+    opacity: 1; /* Set to 1 when debug, otherwise 0 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2em;
+    margin-bottom: 5em;
+    transition: all 0.25s ease-in-out;
+}
+
+.pie-chart-box.hidden {
+    display: none;
+}
+
+.pie-chart-container-box {
+    max-width: 70%;
+    height: 45vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* gap: 2em; */
+}
+
+.pie-chart-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6em;
+}
+
+.pie-chart-title {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.pie-chart-pie-legend-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8em;
+}
+
+.pie-chart {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20em;
+    text-align: center;
+}
+
+.pie {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: top 0.25s ease-in-out, left 0.25s ease-in-out;
+    width: 100%;
+    aspect-ratio: 1;
+    inset: 0;
+    border-radius: 50%;
+    rotate: var(--rotateAngle);
+    background: conic-gradient( var(--pie-color) 0% var(--pie-percent), transparent var(--pie-percent) 100%);
+    animation: drawPie 1.4s ease-in-out 0s 1 forwards;
+}
+
+@property --pie-percent {
+    syntax: "<percentage>";
+    initial-value: 0%;
+    inherits: false;
+}
+
+@keyframes drawPie {
+    from {
+        --pie-percent: 0%;
+    }
+}
+
+.pie-label {
+    opacity: 1;
+    position: relative;
+    top: -3rem;
+    /* left: 10rem; */
+    color: var(--title-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    rotate: calc(0turn - var(--rotateAngle));
+    z-index: 9999;
+    transition: opacity 0.25s ease-in-out;
+}
+
+.pie-value {
+    animation: pieValueCounter 1.4s ease-in-out 0s 1 forwards;
+    counter-set: num var(--pie-value);
+}
+
+.pie-value::after {
+    content: counter(num);
+}
+
+@property --pie-value {
+    syntax: "<integer>";
+    initial-value: 0;
+    inherits: false;
+}
+
+@keyframes pieValueCounter {
+    from {
+        --pie-value: 0;
+    }
+}
+
+.pie-chart-legend {
+    position: absolute;
+    top: 10em;
+    right: -20em;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 1em;
+    width: 15em;
+    height: 15em;
+    overflow: auto;
+}
+
+.pie-legend {
+    align-self: flex-start;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    border: none;
+    border-radius: 2rem;
+    padding: 0.2rem 2rem 0.2rem 2rem;
+    transition: all 0.35s ease-in-out;
+    cursor: pointer;
+}
+
+.pie-legend:hover, .pie-legend.selected {
+    background: rgba(106, 156, 141, 0.2);
+}
+
+.pie-indicator {
+    --pie-color: var(--title-color);
+    min-width: 2.4em;
+    height: 1em;
+    border-radius: 1em;
+    background: var(--pie-color);
+}
+
+.pie-name {
+    width: 5em;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+
+
+
+/* MEMBER PAGE AERA */
+.after-auth-box {
+    width: 100vw;
+    background: rgba(248, 146, 146, 0.1);
+}
+
+.userButtons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.userButtons {
+    width: 10rem;
+    height: 3rem;
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    outline: none;
+    border: none;
+    border-radius: 2.5rem;
+    background: rgba(198, 198, 198, 0.65);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.userButtons:hover {
+    background: rgba(108, 108, 108, 0.45);
+}
+
+.greeting-message-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3em;
+    margin-inline: 3.5em;
+}
+
+.greeting-message-container h1 {
+    font-size: 3.5rem;
+    font-weight: 400;
+    color: var(--title-color);
+}
+
+.greeting-message-container h2 {
+    font-size: 2rem;
+    font-weight: 200;
+    color: var(--title-color);
+}
+
+.challenge-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100vw;
+    height: 100vh;
+    gap: 2em;
+    background: rgba(92, 92, 92, 0.3);
+}
+
+
+
+
+/* Calendar */
+.module-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8em;
+    width: 33%;
+    height: 80vh;
+}
+
+.module-box h1 {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 500;
+    margin-top: 0.8em;
+    color: var(--title-color);
+}
+
+.calendar-container {
+    height: 45vh;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 2rem;
+    padding: 1em 2em 1em 2em;
+}
+
+.calendar-container header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.4em;
+}
+
+.calendar-control-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.calendar-control-container i {
+    font-size: 2rem;
+    background: rgba(223, 223, 223, 0.3);
+    padding: 0.5rem;
+    border: none;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.calendar-control-container i:hover {
+    background: rgba(201, 201, 201, 0.3);
+}
+
+.todayButton {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 1rem;
+    background: rgba(223, 223, 223, 0.3);
+    padding: 0.5rem 0.8rem 0.5rem 0.8rem;
+    cursor: pointer;
+}
+
+.todayButton:hover {
+    background: rgba(201, 201, 201, 0.3);
+}
+
+.current-time-range {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.calendar {
+    padding: 2.5em 0 2.5em 0;
+}
+
+.calendar ul {
+    display: flex;
+    list-style: none;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.calendar .weeks li {
+    font-weight: 600;
+}
+
+.calendar ul li {
+    position: relative;
+    width: calc(100% / 7);
+}
+
+.calendar .days li {
+    z-index: 1;
+    margin-top: 1.8em;
+    cursor: pointer;
+}
+
+.days li.inactive {
+    color: rgba(108, 108, 108, 0.65);
+}
+
+.days li.active {
+    font-weight: 500;
+}
+
+.calendar .days li::before {
+    position: absolute;
+    content: "";
+    height: 2.6rem;
+    width: 2.6rem;
+    top: 50%;
+    left: 50%;
+    border: none;
+    border-radius: 50%;
+    z-index: -1;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: all 0.2s ease-in-out;
+}
+
+li.selectable {
+    font-weight: 400;
+}
+
+.days li.selectable:hover::before {
+    background: rgba(198, 198, 198, 0.35);
+}
+
+.days li.active::before {
+    background: rgba(93, 228, 219, 0.9);
+}
+
+.statistics-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5em;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 2rem;
+    padding: 2em 2em 2em 2em;
+}
+
+.statistics-container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.statistics-container-header h2 {
+    font-weight: 700;
+    font-size: 1.6rem;
+}
+
+.more-statistics-button {
+    width: 5rem;
+    height: 2rem;
+    font-family: "Montserrat", sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    outline: none;
+    border: none;
+    border-radius: 2.5rem;
+    background: rgba(198, 198, 198, 0.65);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.more-statistics-button:hover {
+    background: rgba(108, 108, 108, 0.45);
+}
+
+.data-visualisation-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2.4em;
+}
+
+.stats-number-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.2em;
+}
+
+.number-box {
+    display: flex;
+    justify-content: space-between;
+    gap: 2em;
+}
+
+.number-box p {
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+.number-box span {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.pie-chart-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress-percentage {
+    position: absolute;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.progress-percent {
+    --num: 0;
+    animation: counter 1.4s ease-in-out 0s 1 forwards;
+    counter-set: num var(--num);
+}
+
+.progress-percent::after {
+    content: counter(num);
+}
+
+
+.circular-progress {
+    width: 5.8em;
+    height: 5.8em;
+    --progress: 0;
+    --size: 250px;
+    --half-size: calc(var(--size) / 2);
+    --stroke-width: 2.4rem;
+    --radius: calc((var(--size) - var(--stroke-width)) / 2);
+    --circumference: calc(var(--radius) * pi * 2);
+    --dash: calc((var(--progress) * var(--circumference)) / 100);
+    animation: progress-animation 1.4s ease-in-out 0s 1 forwards;
+}
+
+.circular-progress circle {
+    cx: var(--half-size);
+    cy: var(--half-size);
+    r: var(--radius);
+    stroke-width: var(--stroke-width);
+    fill: none;
+    stroke-linecap: round;
+}
+
+.circular-progress circle.bg {
+    stroke: #ddd;
+}
+
+.circular-progress circle.fg {
+    transform: rotate(-90deg);
+    transform-origin: var(--half-size) var(--half-size);
+    stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
+    transition: stroke-dasharray 0.3s linear 0s;
+    stroke: #007575;
+}
+
+.circular-progress.month circle.fg {
+    stroke: #43d0b9;
+}
+
+@property --progress {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+}
+
+@keyframes progress-animation {
+    from {
+        --progress: 0;
+    }
+}
+
+
+
+
+/* Daily Goals */
+.module-box.daily-goals {
+    width: 40%;
+}
+
+.data-unavailable-message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55vh;
+}
+
+.data-unavailable-message-container h3 {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.data-unavailable-message-container.hidden {
+    display: none;
+}
+
+.daily-goals-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    gap: 1em;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 2rem;
+    padding: 1em 2em 1em 2em;
+}
+
+.header-control {
+    margin-top: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.header-button:enabled {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.4rem;
+    padding: 0.4em 1.5em 0.4em 1.5em;
+    outline: none;
+    border: none;
+    border-radius: 2rem;
+    background: rgba(217, 217, 217, 0.65);
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+}
+
+.header-button:disabled {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.4rem;
+    padding: 0.4em 1.5em 0.4em 1.5em;
+    outline: none;
+    border: none;
+    border-radius: 2rem;
+    color: rgba(111, 111, 111, 0.65);
+    background: rgba(217, 217, 217, 0.65);
+    cursor: default;
+    transition: all 0.25s ease-in-out;
+}
+
+.header-button:enabled:hover {
+    background: rgba(178, 178, 178, 0.65);
+}
+
+.header-button:disabled:hover {
+    background: rgba(217, 217, 217, 0.65);
+}
+
+.selected-date {
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+
+.linebreak {
+    width: 90%;
+    height: 2px;
+    background: rgba(108, 108, 108, 0.65);
+}
+
+.old-tasks-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2em;
+    height: 100%;
+    overflow-y: auto;
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+}
+
+.old-tasks-container.hidden {
+    display: none;
+}
+
+.old-task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    padding: 1em 2em 1em 2em;
+    border: none;
+    border-radius: 3rem;
+    background: rgba(137, 185, 174, 0.15);
+    width: 90%;
+}
+
+.old-task-title {
+    height: 1.8rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    overflow-y: auto;
+}
+
+.old-task-status {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.old-task-percentage {
+    margin-right: 0.6em;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2em;
+    height: 100%;
+    overflow-y: auto;
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+}
+
+.tasks-container.hidden {
+    display: none;
+}
+
+.task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    padding: 1em 2em 1em 2em;
+    border: none;
+    border-radius: 3rem;
+    background: rgba(137, 185, 174, 0.1);
+    width: 90%;
+}
+
+.task i {
+    font-size: 2rem;
+    color: rgba(71, 71, 71, 0.9);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.taskButton {
+    background: none;
+    border: none;
+    outline: none;
+    font-family: "Montserrat", sans-serif;
+}
+
+.bx.bxs-check-circle {
+    font-size: 2rem;
+    color: rgba(53, 226, 197, 0.8);
+}
+
+.bx.bx-circle:hover {
+    font-size: 3rem;
+    color: rgba(71, 178, 160, 0.5);
+}
+
+.bx.bxs-check-circle:hover {
+    font-size: 3rem;
+    color: rgba(6, 255, 213, 0.8);
+}
+
+.bx.bxs-edit:hover {
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.task-title {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    width: 75%;
+    max-height: 6rem;
+    background: rgba(129, 171, 165, 0.25);
+    border: none;
+    border-radius: 2.5rem;
+    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+    outline: none;
+    overflow-y: auto;
+    transition: all 0.2s ease;
+}
+
+.task-title:hover {
+    background: rgba(144, 251, 231, 0.25);
+}
+
+
+
+
+/* Daily Goals Meter */
+.module-box.daily-goals-meter {
+    width: 14%;
+}
+
+.daily-goals-meter-container {
+    display: flex;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    border-radius: 2rem;
+    padding: 1.5em 2em 1.5em 2em;
+    height: 100%;
+}
+
+.daily-goals-meter-bar-container {
+    display: flex;
+    background: linear-gradient(#007575, #43d0b9, #9ee2d7);
+    width: 70%;
+    height: 100%;
+}
+
+.daily-goals-meter-bar {
+    align-self: flex-start;
+    background: rgb(221, 221, 221);
+    width: 100%;
+    height: 100%;
+    transition: height 0.65s ease-in-out;
+}
+
+
+
+
+.screen-width-too-narrow-message {
+    display: none;
+}
+
+.screen-width-too-narrow-message h1 {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 300;
+    margin-top: 20%;
+    margin-inline: 10%;
+}
+
+
+
+
+@media only screen and (max-width: 970px) {
+    .signin-signup-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media only screen and (max-width: 959px) {
+    .challenge-container {
+        display: none;
+    }
+    .screen-width-too-narrow-message {
+        display: flex;
+    }
+}
